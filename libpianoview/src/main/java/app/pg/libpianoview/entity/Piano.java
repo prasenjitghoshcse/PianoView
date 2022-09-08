@@ -30,10 +30,10 @@ public class Piano {
   public Piano(Context context, float scale) {
     this.context = context;
     this.scale = scale;
-    initPiano();
+    InitPiano();
   }
 
-  private void initPiano() {
+  private void InitPiano() {
     if (scale > 0) {
       Drawable blackDrawable = ContextCompat.getDrawable(context, R.drawable.black_piano_key);
       Drawable whiteDrawable = ContextCompat.getDrawable(context, R.drawable.white_piano_key);
@@ -118,6 +118,7 @@ public class Piano {
                   Gravity.NO_GRAVITY, 1, scale).getDrawable());
           setWhiteKeyDrawableBounds(i, j, mKeys[j].getKeyDrawable());
           pianoWith += whiteKeyWidth;
+
           if (i == 0) {
             switch (j) {
               case 0:
@@ -133,6 +134,7 @@ public class Piano {
             }
             continue;
           }
+
           if (i == 8) {
             Rect[] areaOfKey = new Rect[1];
             areaOfKey[0] = mKeys[j].getKeyDrawable().getBounds();
@@ -141,7 +143,7 @@ public class Piano {
             mKeys[j].setLetterName("C8");
             break;
           }
-          //非固定属性
+
           switch (j) {
             case 0:
               mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.RIGHT));

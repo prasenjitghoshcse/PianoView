@@ -100,23 +100,21 @@ public class PianoView extends View {
     }
 
     @Override protected void onDraw(Canvas canvas) {
-      //初始化钢琴
       if (piano == null) {
-        minRange = 0;
-        maxRange = layoutWidth;
-        piano = new Piano(context, scale);
-        //获取白键
+        minRange       = 0;
+        maxRange       = layoutWidth;
+        piano          = new Piano(context, scale);
         whitePianoKeys = piano.getWhitePianoKeys();
-        //获取黑键
         blackPianoKeys = piano.getBlackPianoKeys();
       }
-      //初始化白键
+
       if (whitePianoKeys != null) {
         for (int i = 0; i < whitePianoKeys.size(); i++) {
           for (PianoKey key : whitePianoKeys.get(i)) {
             paint.setColor(Color.parseColor(pianoColors[i]));
             key.getKeyDrawable().draw(canvas);
-            //初始化音名区域
+
+            // Draw the key names (e.g. C0, A4 etc.)
             Rect r = key.getKeyDrawable().getBounds();
             int sideLength = (r.right - r.left) / 2;
             int left = r.left + sideLength / 2;
@@ -143,6 +141,7 @@ public class PianoView extends View {
           }
         }
       }
+
       if (!isInitFinish && piano != null && pianoListener != null) {
         isInitFinish = true;
         pianoListener.onPianoInitFinish();
