@@ -44,8 +44,15 @@ public class PianoView extends View {
   private RectF square;
   //正方形背景颜色
   private String pianoColors[] = {
-      "#C0C0C0", "#A52A2A", "#FF8C00", "#FFFF00", "#00FA9A", "#00CED1", "#4169E1", "#FFB6C1",
-      "#FFEBCD"
+          "#C0C0C0",
+          "#FBB3B3",
+          "#A2DCD7",
+          "#D1C3EC",
+          "#FFCC80",
+          "#E5EF82",
+          "#98DFFF",
+          "#AFDFB1",
+          "#C0C0C0"
   };
   //上下文
   private Context context;
