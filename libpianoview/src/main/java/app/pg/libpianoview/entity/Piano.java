@@ -1,8 +1,5 @@
 package app.pg.libpianoview.entity;
 
-/**
- * Created by ChengTao on 2016-11-25.
- */
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -14,33 +11,21 @@ import app.pg.libpianoview.R;
 import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 
-/**
- * 钢琴实体
- */
+
 public class Piano {
-  //钢琴键数目
   public final static int PIANO_NUMS = 88;
-  //黑白键的组数
   private final static int BLACK_PIANO_KEY_GROUPS = 8;
   private final static int WHITE_PIANO_KEY_GROUPS = 9;
-  //黑白键集合
   private final ArrayList<PianoKey[]> blackPianoKeys = new ArrayList<>(BLACK_PIANO_KEY_GROUPS);
   private final ArrayList<PianoKey[]> whitePianoKeys = new ArrayList<>(WHITE_PIANO_KEY_GROUPS);
-  //黑白键高度和宽度
   private int blackKeyWidth;
   private int blackKeyHeight;
   private int whiteKeyWidth;
   private int whiteKeyHeight;
-  //钢琴总宽度
   private int pianoWith = 0;
-  /**
-   * 承载钢琴的布局的高度,用于初始化黑白键的高度和宽度
-   */
   private float scale = 0;
-  //上下文
   private final Context context;
 
-  //构造函数
   public Piano(Context context, float scale) {
     this.context = context;
     this.scale = scale;
@@ -49,7 +34,6 @@ public class Piano {
 
   private void initPiano() {
     if (scale > 0) {
-      //获取黑键和白键的高度和宽度
       Drawable blackDrawable = ContextCompat.getDrawable(context, R.drawable.black_piano_key);
       Drawable whiteDrawable = ContextCompat.getDrawable(context, R.drawable.white_piano_key);
       blackKeyWidth = blackDrawable.getIntrinsicWidth();
@@ -57,7 +41,6 @@ public class Piano {
       whiteKeyWidth = whiteDrawable.getIntrinsicWidth();
       whiteKeyHeight = (int) ((float) whiteDrawable.getIntrinsicHeight() * scale);
 
-      //初始化黑键
       for (int i = 0; i < BLACK_PIANO_KEY_GROUPS; i++) {
         PianoKey[] keys;
         switch (i) {
@@ -106,7 +89,7 @@ public class Piano {
         }
         blackPianoKeys.add(keys);
       }
-      //初始化白键
+
       for (int i = 0; i < WHITE_PIANO_KEY_GROUPS; i++) {
         PianoKey[] mKeys;
         switch (i) {
@@ -120,6 +103,7 @@ public class Piano {
             mKeys = new PianoKey[7];
             break;
         }
+
         for (int j = 0; j < mKeys.length; j++) {
           mKeys[j] = new PianoKey();
           //固定属性
@@ -227,24 +211,10 @@ public class Piano {
     LEFT, LEFT_RIGHT, RIGHT
   }
 
-  /**
-   * 从资源文件中获取声音ID
-   *
-   * @param voiceName 声音的文件名
-   * @return 声音ID
-   */
   private int getVoiceFromResources(String voiceName) {
     return context.getResources().getIdentifier(voiceName, "raw", context.getPackageName());
   }
 
-  /**
-   * 设置白色键的点击区域
-   *
-   * @param group 组数，从0开始
-   * @param positionOfGroup 本组数内的位置
-   * @param blackKeyPosition 黑键占白键的位置
-   * @return 矩形数组
-   */
   private Rect[] getWhitePianoKeyArea(int group, int positionOfGroup,
       BlackKeyPosition blackKeyPosition) {
     int offset = 0;
@@ -291,13 +261,6 @@ public class Piano {
     return null;
   }
 
-  /**
-   * 设置白色键图案的位置
-   *
-   * @param group 组数，从0开始
-   * @param positionOfGroup 在本组中的位置
-   * @param drawable 要设置的Drawale对象
-   */
   private void setWhiteKeyDrawableBounds(int group, int positionOfGroup, Drawable drawable) {
     int offset = 0;
     if (group == 0) {
@@ -307,13 +270,6 @@ public class Piano {
         (7 * group - 4 + offset + positionOfGroup) * whiteKeyWidth, whiteKeyHeight);
   }
 
-  /**
-   * 设置黑色键图案的位置
-   *
-   * @param group 组数，从0开始
-   * @param positionOfGroup 组内的位置
-   * @param drawable 要设置的Drawale对象
-   */
   private void setBlackKeyDrawableBounds(int group, int positionOfGroup, Drawable drawable) {
     int whiteOffset = 0;
     int blackOffset = 0;

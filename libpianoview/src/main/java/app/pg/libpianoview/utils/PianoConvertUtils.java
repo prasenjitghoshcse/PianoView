@@ -1,5 +1,6 @@
 package app.pg.libpianoview.utils;
 
+
 import android.text.TextUtils;
 import android.util.Log;
 import java.io.BufferedReader;
@@ -14,12 +15,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Author : ChengTao(chengtaolearn@163.com)
- * Date : 11/3/17
- * Time : 11:43 PM
- * Description :
- */
 
 public class PianoConvertUtils {
   private static final int STANDARD_DO_GROUP = 3;
@@ -190,7 +185,7 @@ public class PianoConvertUtils {
         break;
       }
     }
-    // 基本配置
+
     String baseConfigString = baseConfigBuilder.substring(1, baseConfigBuilder.length() - 1);
     for (String baseConfig : baseConfigString.split(";")) {
       if (!baseConfig.equals("")) {
@@ -277,19 +272,6 @@ public class PianoConvertUtils {
     return result;
   }
 
-  /**
-   * 添加有高音或者低音的钢琴键
-   *
-   * @param currentDoGroup 当前do所在的组数
-   * @param currentDoPosition 当前do所在组数下的位置
-   * @param currentFrequency 当前的默认频率
-   * @param highSet 高音集合
-   * @param lowSet 低音集合
-   * @param pianoKeyList 钢琴键列表
-   * @param musicNote 当前的数字
-   * @param highTune 是否高八度
-   * @param lowTune 是否低八度
-   */
   private static void addHighLowNumberKey(int currentDoGroup, int currentDoPosition,
       long currentFrequency, HashSet<Integer> highSet, HashSet<Integer> lowSet,
       List<PianoKey> pianoKeyList, String musicNote, boolean highTune, boolean lowTune) {
@@ -315,19 +297,6 @@ public class PianoConvertUtils {
         musicNote.substring(1), highTune, lowTune);
   }
 
-  /**
-   * 添加只有数字(数字 + 频率)的钢琴键
-   *
-   * @param currentDoGroup 当前do所在的组数
-   * @param currentDoPosition 当前do所在组数下的位置
-   * @param currentFrequency 当前的默认频率
-   * @param highSet 高音集合
-   * @param lowSet 低音集合
-   * @param pianoKeyList 钢琴键列表
-   * @param highTune 是否高八度
-   * @param lowTune 是否低八度
-   * @param musicNote 当前的数字
-   */
   private static void addNumberKey(int currentDoGroup, int currentDoPosition, long currentFrequency,
       HashSet<Integer> highSet, HashSet<Integer> lowSet, List<PianoKey> pianoKeyList,
       String musicNote, boolean highTune, boolean lowTune) {
@@ -343,19 +312,6 @@ public class PianoConvertUtils {
     }
   }
 
-  /**
-   * 获取钢琴键实体
-   *
-   * @param currentDoGroup 当前do所在的组数
-   * @param currentDoPosition 当前do所在组数的位置
-   * @param frequency 该音符的频率
-   * @param musicNoteNumber 该音符对应简谱的数组
-   * @param highSet 改小节高音集合
-   * @param lowSet 该小节的低音集合
-   * @param highTune 是否高八度
-   * @param lowTune 是否低八度
-   * @return 钢琴键实体
-   */
   private static PianoKey obtainPianoKey(int currentDoGroup, int currentDoPosition, long frequency,
       int musicNoteNumber, HashSet<Integer> highSet, HashSet<Integer> lowSet, Boolean highTune,
       Boolean lowTune) {

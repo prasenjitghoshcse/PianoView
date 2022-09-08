@@ -1,35 +1,20 @@
 package app.pg.libpianoview.entity;
 
-/**
- * Created by ChengTao on 2016-11-25.
- */
 
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
-/**
- * 钢琴键实体
- */
+
 public class PianoKey {
-  //类型[黑键、白键]
   private Piano.PianoKeyType type;
-  //音乐类型[DO,RE,MI,FA,SO,LA,SI]
   private Piano.PianoVoice voice;
-  //所属组
   private int group;
-  //所属组下的位置
   private int positionOfGroup;
-  //图案
   private Drawable keyDrawable;
-  //音乐ID
   private int voiceId;
-  //标志，是否被点击，默认未点击
   private boolean isPressed;
-  //钢琴键的所占区域
   private Rect[] areaOfKey;
-  //音名（针对白键）
   private String letterName;
-  //被点击的手指的下标
   private int fingerID = -1;
 
   public Piano.PianoKeyType getType() {
@@ -104,13 +89,6 @@ public class PianoKey {
     this.letterName = letterName;
   }
 
-  /**
-   * 判断x,y坐标是否在钢琴键的点击区域内
-   *
-   * @param x x坐标
-   * @param y y坐标
-   * @return 是否在点击区域内
-   */
   public boolean contains(int x, int y) {
     boolean isContain = false;
     Rect[] areas = getAreaOfKey();

@@ -13,7 +13,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
 
-import app.pg.libpianoview.entity.AutoPlayEntity;
 import app.pg.libpianoview.entity.Piano;
 import app.pg.libpianoview.listener.OnPianoListener;
 import app.pg.libpianoview.view.PianoView;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
   private final static float SEEKBAR_OFFSET_SIZE = -12;
   //
   private boolean isPlay = false;
-  private ArrayList<AutoPlayEntity> litterStarList = null;
   private static final long LITTER_STAR_BREAK_SHORT_TIME = 500;
   private static final long LITTER_STAR_BREAK_LONG_TIME = 1000;
 
@@ -70,91 +68,6 @@ import java.util.ArrayList;
    * 初始化小星星列表
    */
   private void initLitterStarList() {
-    litterStarList = new ArrayList<>();
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 0, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 0, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 5, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 5, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_LONG_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 3, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 3, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 2, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 2, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 1, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 1, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 0, LITTER_STAR_BREAK_LONG_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 3, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 3, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 2, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 2, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 1, LITTER_STAR_BREAK_LONG_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 3, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 3, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 2, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 2, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 1, LITTER_STAR_BREAK_LONG_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 0, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 0, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 5, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 5, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 4, LITTER_STAR_BREAK_LONG_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 3, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 3, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 2, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 2, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 1, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 1, LITTER_STAR_BREAK_SHORT_TIME));
-    litterStarList.add(
-        new AutoPlayEntity(Piano.PianoKeyType.WHITE, 4, 0, LITTER_STAR_BREAK_LONG_TIME));
   }
 
   @Override public void onPianoInitFinish() {
