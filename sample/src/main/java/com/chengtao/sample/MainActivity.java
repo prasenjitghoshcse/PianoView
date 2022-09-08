@@ -15,17 +15,14 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 import com.chengtao.pianoview.entity.AutoPlayEntity;
 import com.chengtao.pianoview.entity.Piano;
-import com.chengtao.pianoview.listener.OnLoadAudioListener;
-import com.chengtao.pianoview.listener.OnPianoAutoPlayListener;
 import com.chengtao.pianoview.listener.OnPianoListener;
-import com.chengtao.pianoview.utils.AutoPlayUtils;
 import com.chengtao.pianoview.view.PianoView;
 import java.io.IOException;
 import java.util.ArrayList;
 
 @SuppressWarnings("FieldCanBeLocal") public class MainActivity extends Activity
-    implements OnPianoListener, OnLoadAudioListener, SeekBar.OnSeekBarChangeListener,
-    View.OnClickListener, OnPianoAutoPlayListener {
+    implements OnPianoListener, SeekBar.OnSeekBarChangeListener,
+    View.OnClickListener {
   //flight_of_the_bumble_bee,simple_little_star_config
   private static final String CONFIG_FILE_NAME = "simple_little_star_config";
   private static final boolean USE_CONFIG_FILE = true;
@@ -58,8 +55,6 @@ import java.util.ArrayList;
     btnMusic = findViewById(R.id.iv_music);
     //listener
     pianoView.setPianoListener(this);
-    pianoView.setAutoPlayListener(this);
-    pianoView.setLoadAudioListener(this);
     seekBar.setOnSeekBarChangeListener(this);
     rightArrow.setOnClickListener(this);
     leftArrow.setOnClickListener(this);
@@ -67,12 +62,6 @@ import java.util.ArrayList;
     //init
     if (USE_CONFIG_FILE) {
       AssetManager assetManager = getAssets();
-      try {
-        litterStarList = AutoPlayUtils.getAutoPlayEntityListByCustomConfigInputStream(
-            assetManager.open(CONFIG_FILE_NAME));
-      } catch (IOException e) {
-        Log.e("TAG", e.getMessage());
-      }
     } else {
       initLitterStarList();
     }
@@ -175,22 +164,12 @@ import java.util.ArrayList;
 
   @Override public void onPianoClick(Piano.PianoKeyType type, Piano.PianoVoice voice, int group,
       int positionOfGroup) {
-  }
-
-  @Override public void loadPianoAudioStart() {
-    Toast.makeText(getApplicationContext(), "loadPianoMusicStart", Toast.LENGTH_SHORT).show();
-  }
-
-  @Override public void loadPianoAudioFinish() {
-    Toast.makeText(getApplicationContext(), "loadPianoMusicFinish", Toast.LENGTH_SHORT).show();
-  }
-
-  @Override public void loadPianoAudioError(Exception e) {
-    Toast.makeText(getApplicationContext(), "loadPianoMusicError", Toast.LENGTH_SHORT).show();
-  }
-
-  @Override public void loadPianoAudioProgress(int progress) {
-    Log.e("TAG", "progress:" + progress);
+    Log.d("MainActivity", "===================================================");
+    Log.d("MainActivity", "Piano.PianoKeyType = " + type);
+    Log.d("MainActivity", "Piano.PianoVoice   = " + voice);
+    Log.d("MainActivity", "group              = " + group);
+    Log.d("MainActivity", "positionOfGroup    = " + positionOfGroup);
+    Log.d("MainActivity", "===================================================");
   }
 
   @Override public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -265,15 +244,6 @@ import java.util.ArrayList;
     Resources resources = this.getResources();
     DisplayMetrics metrics = resources.getDisplayMetrics();
     return dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-  }
-
-  @Override public void onPianoAutoPlayStart() {
-    Toast.makeText(this, "onPianoAutoPlayStart", Toast.LENGTH_SHORT).show();
-  }
-
-  @Override public void onPianoAutoPlayEnd() {
-    Toast.makeText(this, "onPianoAutoPlayEnd", Toast.LENGTH_SHORT).show();
-    isPlay = false;
   }
 
   @Override protected void onDestroy() {

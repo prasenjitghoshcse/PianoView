@@ -21,10 +21,7 @@ import com.chengtao.pianoview.R;
 import com.chengtao.pianoview.entity.AutoPlayEntity;
 import com.chengtao.pianoview.entity.Piano;
 import com.chengtao.pianoview.entity.PianoKey;
-import com.chengtao.pianoview.listener.OnLoadAudioListener;
-import com.chengtao.pianoview.listener.OnPianoAutoPlayListener;
 import com.chengtao.pianoview.listener.OnPianoListener;
-import com.chengtao.pianoview.utils.AudioUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -50,18 +47,12 @@ public class PianoView extends View {
       "#C0C0C0", "#A52A2A", "#FF8C00", "#FFFF00", "#00FA9A", "#00CED1", "#4169E1", "#FFB6C1",
       "#FFEBCD"
   };
-  //播放器工具
-  private AudioUtils utils = null;
   //上下文
   private Context context;
   //布局的宽度
   private int layoutWidth = 0;
   //缩放比例
   private float scale = 1;
-  //音频加载接口
-  private OnLoadAudioListener loadAudioListener;
-  //自动播放接口
-  private OnPianoAutoPlayListener autoPlayListener;
   //接口
   private OnPianoListener pianoListener;
   //钢琴被滑动的一些属性
@@ -146,19 +137,6 @@ public class PianoView extends View {
       whitePianoKeys = piano.getWhitePianoKeys();
       //获取黑键
       blackPianoKeys = piano.getBlackPianoKeys();
-      //初始化播放器
-      if (utils == null) {
-        if (maxStream > 0) {
-          utils = AudioUtils.getInstance(getContext(), loadAudioListener, maxStream);
-        } else {
-          utils = AudioUtils.getInstance(getContext(), loadAudioListener);
-        }
-        try {
-          utils.loadMusic(piano);
-        } catch (Exception e) {
-          Log.e(TAG, e.getMessage());
-        }
-      }
     }
     //初始化白键
     if (whitePianoKeys != null) {
@@ -277,7 +255,6 @@ public class PianoView extends View {
     }
     pressedKeys.add(key);
     invalidate(key.getKeyDrawable().getBounds());
-    utils.playMusic(key);
     if (pianoListener != null) {
       pianoListener.onPianoClick(key.getType(), key.getVoice(), key.getGroup(),
           key.getPositionOfGroup());
@@ -299,7 +276,6 @@ public class PianoView extends View {
     }
     pressedKeys.add(key);
     invalidate(key.getKeyDrawable().getBounds());
-    utils.playMusic(key);
     if (pianoListener != null) {
       pianoListener.onPianoClick(key.getType(), key.getVoice(), key.getGroup(),
           key.getPositionOfGroup());
@@ -453,9 +429,6 @@ public class PianoView extends View {
    * 释放自动播放
    */
   public void releaseAutoPlay() {
-    if (utils != null) {
-      utils.stop();
-    }
   }
 
   /**
@@ -544,24 +517,6 @@ public class PianoView extends View {
     this.pianoListener = pianoListener;
   }
 
-  /**
-   * 设置加载音频接口
-   *
-   * @param loadAudioListener 　音频接口
-   */
-  public void setLoadAudioListener(OnLoadAudioListener loadAudioListener) {
-    this.loadAudioListener = loadAudioListener;
-  }
-
-  /**
-   * 设置自动播放接口
-   *
-   * @param autoPlayListener 　自动播放接口
-   */
-  public void setAutoPlayListener(OnPianoAutoPlayListener autoPlayListener) {
-    this.autoPlayListener = autoPlayListener;
-  }
-
   //-----私有方法
 
   /**
@@ -608,16 +563,10 @@ public class PianoView extends View {
         handleUp();
         break;
       case HANDLE_AUTO_PLAY_START://开始
-        if (autoPlayListener != null) {
-          autoPlayListener.onPianoAutoPlayStart();
-        }
         break;
       case HANDLE_AUTO_PLAY_END://结束
         isAutoPlaying = false;
         setCanPress(true);
-        if (autoPlayListener != null) {
-          autoPlayListener.onPianoAutoPlayEnd();
-        }
         break;
     }
   }
