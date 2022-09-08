@@ -47,7 +47,6 @@ import java.util.ArrayList;
     setContentView(R.layout.activity_main);
     //view
     pianoView = findViewById(R.id.pv);
-    pianoView.setSoundPollMaxStream(10);
     seekBar = findViewById(R.id.sb);
     seekBar.setThumbOffset((int) convertDpToPixel(SEEKBAR_OFFSET_SIZE));
     leftArrow = findViewById(R.id.iv_left_arrow);
@@ -228,7 +227,6 @@ import java.util.ArrayList;
         break;
       case R.id.iv_music:
         if (!isPlay) {
-          pianoView.autoPlay(litterStarList);
         }
         break;
     }
@@ -248,8 +246,5 @@ import java.util.ArrayList;
 
   @Override protected void onDestroy() {
     super.onDestroy();
-    if (pianoView != null) {
-      pianoView.releaseAutoPlay();
-    }
   }
 }

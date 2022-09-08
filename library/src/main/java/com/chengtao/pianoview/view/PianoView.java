@@ -7,23 +7,17 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.os.Parcelable;
 import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import com.chengtao.pianoview.R;
-import com.chengtao.pianoview.entity.AutoPlayEntity;
 import com.chengtao.pianoview.entity.Piano;
 import com.chengtao.pianoview.entity.PianoKey;
 import com.chengtao.pianoview.listener.OnPianoListener;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -37,13 +31,13 @@ public class PianoView extends View {
   private ArrayList<PianoKey[]> whitePianoKeys;
   private ArrayList<PianoKey[]> blackPianoKeys;
   //被点击过的钢琴键
-  private CopyOnWriteArrayList<PianoKey> pressedKeys = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<PianoKey> pressedKeys = new CopyOnWriteArrayList<>();
   //画笔
-  private Paint paint;
+  private final Paint paint;
   //定义标识音名的正方形
-  private RectF square;
+  private final RectF square;
   //正方形背景颜色
-  private String pianoColors[] = {
+  private String[] pianoColors = {
           "#C0C0C0",
           "#FBB3B3",
           "#A2DCD7",
@@ -55,7 +49,7 @@ public class PianoView extends View {
           "#C0C0C0"
   };
   //上下文
-  private Context context;
+  private final Context context;
   //布局的宽度
   private int layoutWidth = 0;
   //缩放比例
@@ -66,26 +60,10 @@ public class PianoView extends View {
   private int progress = 0;
   //设置是否可以点击
   private boolean canPress = true;
-  //是否正在自动播放
-  private boolean isAutoPlaying = false;
   //初始化结束
   private boolean isInitFinish = false;
   private int minRange = 0;
   private int maxRange = 0;
-  //
-  private int maxStream;
-  //自动播放Handler
-  private Handler autoPlayHandler = new Handler(Looper.myLooper()) {
-    @Override public void handleMessage(Message msg) {
-      handleAutoPlay(msg);
-    }
-  };
-  //消息ID
-  private static final int HANDLE_AUTO_PLAY_START = 0;
-  private static final int HANDLE_AUTO_PLAY_END = 1;
-  private static final int HANDLE_AUTO_PLAY_BLACK_DOWN = 2;
-  private static final int HANDLE_AUTO_PLAY_WHITE_DOWN = 3;
-  private static final int HANDLE_AUTO_PLAY_KEY_UP = 4;
 
   //构造函数
   public PianoView(Context context) {
@@ -346,99 +324,6 @@ public class PianoView extends View {
   //-----公共方法
 
   /**
-   * 自动播放
-   *
-   * @param autoPlayEntities 自动播放实体列表
-   */
-  public void autoPlay(final List<AutoPlayEntity> autoPlayEntities) {
-    if (isAutoPlaying) {
-      return;
-    }
-    isAutoPlaying = true;
-    setCanPress(false);
-    new Thread() {
-      @Override public void run() {
-        //开始
-        if (autoPlayHandler != null) {
-          autoPlayHandler.sendEmptyMessage(HANDLE_AUTO_PLAY_START);
-        }
-        //播放
-        try {
-          if (autoPlayEntities != null) {
-            for (AutoPlayEntity entity : autoPlayEntities) {
-              if (entity != null) {
-                if (entity.getType() != null) {
-                  switch (entity.getType()) {
-                    case BLACK://黑键
-                      PianoKey blackKey = null;
-                      if (entity.getGroup() == 0) {
-                        if (entity.getPosition() == 0) {
-                          blackKey = blackPianoKeys.get(0)[0];
-                        }
-                      } else if (entity.getGroup() > 0 && entity.getGroup() <= 7) {
-                        if (entity.getPosition() >= 0 && entity.getPosition() <= 4) {
-                          blackKey = blackPianoKeys.get(entity.getGroup())[entity.getPosition()];
-                        }
-                      }
-                      if (blackKey != null) {
-                        Message msg = Message.obtain();
-                        msg.what = HANDLE_AUTO_PLAY_BLACK_DOWN;
-                        msg.obj = blackKey;
-                        autoPlayHandler.sendMessage(msg);
-                      }
-                      break;
-                    case WHITE://白键
-                      PianoKey whiteKey = null;
-                      if (entity.getGroup() == 0) {
-                        if (entity.getPosition() == 0) {
-                          whiteKey = whitePianoKeys.get(0)[0];
-                        } else if (entity.getPosition() == 1) {
-                          whiteKey = whitePianoKeys.get(0)[1];
-                        }
-                      } else if (entity.getGroup() >= 0 && entity.getGroup() <= 7) {
-                        if (entity.getPosition() >= 0 && entity.getPosition() <= 6) {
-                          whiteKey = whitePianoKeys.get(entity.getGroup())[entity.getPosition()];
-                        }
-                      } else if (entity.getGroup() == 8) {
-                        if (entity.getPosition() == 0) {
-                          whiteKey = whitePianoKeys.get(8)[0];
-                        }
-                      }
-                      if (whiteKey != null) {
-                        Message msg = Message.obtain();
-                        msg.what = HANDLE_AUTO_PLAY_WHITE_DOWN;
-                        msg.obj = whiteKey;
-                        autoPlayHandler.sendMessage(msg);
-                      }
-                      break;
-                    default:
-                      break;
-                  }
-                }
-                Thread.sleep(entity.getCurrentBreakTime() / 2);
-                autoPlayHandler.sendEmptyMessage(HANDLE_AUTO_PLAY_KEY_UP);
-                Thread.sleep(entity.getCurrentBreakTime() / 2);
-              }
-            }
-          }
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-        //结束
-        if (autoPlayHandler != null) {
-          autoPlayHandler.sendEmptyMessage(HANDLE_AUTO_PLAY_END);
-        }
-      }
-    }.start();
-  }
-
-  /**
-   * 释放自动播放
-   */
-  public void releaseAutoPlay() {
-  }
-
-  /**
    * 获取钢琴控件的总长度
    *
    * @return 钢琴控件的总长度
@@ -504,15 +389,6 @@ public class PianoView extends View {
     this.progress = progress;
   }
 
-  /**
-   * 设置soundPool maxStream
-   *
-   * @param maxStream maxStream
-   */
-  public void setSoundPollMaxStream(int maxStream) {
-    this.maxStream = maxStream;
-  }
-
   //接口
 
   /**
@@ -525,88 +401,6 @@ public class PianoView extends View {
   }
 
   //-----私有方法
-
-  /**
-   * 将dp装换成px
-   *
-   * @param dp dp值
-   * @return px值
-   */
-  private int dpToPx(int dp) {
-    DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-    return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-  }
-
-  /**
-   * 处理自动播放
-   *
-   * @param msg 消息实体
-   */
-  private void handleAutoPlay(Message msg) {
-    switch (msg.what) {
-      case HANDLE_AUTO_PLAY_BLACK_DOWN://播放黑键
-        if (msg.obj != null) {
-          try {
-            PianoKey key = (PianoKey) msg.obj;
-            autoScroll(key);
-            handleBlackKeyDown(-1, null, key);
-          } catch (Exception e) {
-            Log.e("TAG", "黑键对象有问题:" + e.getMessage());
-          }
-        }
-        break;
-      case HANDLE_AUTO_PLAY_WHITE_DOWN://播放白键
-        if (msg.obj != null) {
-          try {
-            PianoKey key = (PianoKey) msg.obj;
-            autoScroll(key);
-            handleWhiteKeyDown(-1, null, key);
-          } catch (Exception e) {
-            Log.e("TAG", "白键对象有问题:" + e.getMessage());
-          }
-        }
-        break;
-      case HANDLE_AUTO_PLAY_KEY_UP:
-        handleUp();
-        break;
-      case HANDLE_AUTO_PLAY_START://开始
-        break;
-      case HANDLE_AUTO_PLAY_END://结束
-        isAutoPlaying = false;
-        setCanPress(true);
-        break;
-    }
-  }
-
-  /**
-   * 自动滚动
-   *
-   * @param key 　钢琴键
-   */
-  private void autoScroll(PianoKey key) {
-    if (isAutoPlaying) {//正在自动播放
-      if (key != null) {
-        Rect[] areas = key.getAreaOfKey();
-        if (areas != null && areas.length > 0 && areas[0] != null) {
-          int left = areas[0].left, right = key.getAreaOfKey()[0].right;
-          for (int i = 1; i < areas.length; i++) {
-            if (areas[i] != null) {
-              if (areas[i].left < left) {
-                left = areas[i].left;
-              }
-              if (areas[i].right > right) {
-                right = areas[i].right;
-              }
-            }
-          }
-          if (left < minRange || right > maxRange) {//不在当前可见区域的范围之类
-            int progress = (int) ((float) left * 100 / (float) getPianoWidth());
-            scroll(progress);
-          }
-        }
-      }
-    }
-  }
 
   @Override protected void onRestoreInstanceState(Parcelable state) {
     super.onRestoreInstanceState(state);

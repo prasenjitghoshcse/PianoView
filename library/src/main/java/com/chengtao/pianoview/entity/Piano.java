@@ -24,8 +24,8 @@ public class Piano {
   private final static int BLACK_PIANO_KEY_GROUPS = 8;
   private final static int WHITE_PIANO_KEY_GROUPS = 9;
   //黑白键集合
-  private ArrayList<PianoKey[]> blackPianoKeys = new ArrayList<>(BLACK_PIANO_KEY_GROUPS);
-  private ArrayList<PianoKey[]> whitePianoKeys = new ArrayList<>(WHITE_PIANO_KEY_GROUPS);
+  private final ArrayList<PianoKey[]> blackPianoKeys = new ArrayList<>(BLACK_PIANO_KEY_GROUPS);
+  private final ArrayList<PianoKey[]> whitePianoKeys = new ArrayList<>(WHITE_PIANO_KEY_GROUPS);
   //黑白键高度和宽度
   private int blackKeyWidth;
   private int blackKeyHeight;
@@ -38,7 +38,7 @@ public class Piano {
    */
   private float scale = 0;
   //上下文
-  private Context context;
+  private final Context context;
 
   //构造函数
   public Piano(Context context, float scale) {
@@ -59,7 +59,7 @@ public class Piano {
 
       //初始化黑键
       for (int i = 0; i < BLACK_PIANO_KEY_GROUPS; i++) {
-        PianoKey keys[];
+        PianoKey[] keys;
         switch (i) {
           case 0:
             keys = new PianoKey[1];
@@ -70,7 +70,7 @@ public class Piano {
         }
         for (int j = 0; j < keys.length; j++) {
           keys[j] = new PianoKey();
-          Rect areaOfKey[] = new Rect[1];
+          Rect[] areaOfKey = new Rect[1];
           keys[j].setType(PianoKeyType.BLACK);
           keys[j].setGroup(i);
           keys[j].setPositionOfGroup(j);
@@ -149,7 +149,7 @@ public class Piano {
             continue;
           }
           if (i == 8) {
-            Rect areaOfKey[] = new Rect[1];
+            Rect[] areaOfKey = new Rect[1];
             areaOfKey[0] = mKeys[j].getKeyDrawable().getBounds();
             mKeys[j].setAreaOfKey(areaOfKey);
             mKeys[j].setVoice(PianoVoice.DO);
@@ -208,7 +208,7 @@ public class Piano {
     @SerializedName("0")
     BLACK(0), @SerializedName("1")
     WHITE(1);
-    private int value;
+    private final int value;
 
     PianoKeyType(int value) {
       this.value = value;
@@ -253,7 +253,7 @@ public class Piano {
     }
     switch (blackKeyPosition) {
       case LEFT:
-        Rect left[] = new Rect[2];
+        Rect[] left = new Rect[2];
         left[0] =
             new Rect((7 * group - 5 + offset + positionOfGroup) * whiteKeyWidth, blackKeyHeight,
                 (7 * group - 5 + offset + positionOfGroup) * whiteKeyWidth + blackKeyWidth / 2,
@@ -263,7 +263,7 @@ public class Piano {
                 0, (7 * group - 4 + offset + positionOfGroup) * whiteKeyWidth, whiteKeyHeight);
         return left;
       case LEFT_RIGHT:
-        Rect leftRight[] = new Rect[3];
+        Rect[] leftRight = new Rect[3];
         leftRight[0] =
             new Rect((7 * group - 5 + offset + positionOfGroup) * whiteKeyWidth, blackKeyHeight,
                 (7 * group - 5 + offset + positionOfGroup) * whiteKeyWidth + blackKeyWidth / 2,
@@ -278,7 +278,7 @@ public class Piano {
                 whiteKeyHeight);
         return leftRight;
       case RIGHT:
-        Rect right[] = new Rect[2];
+        Rect[] right = new Rect[2];
         right[0] = new Rect((7 * group - 5 + offset + positionOfGroup) * whiteKeyWidth, 0,
             (7 * group - 4 + offset + positionOfGroup) * whiteKeyWidth - blackKeyWidth / 2,
             whiteKeyHeight);
