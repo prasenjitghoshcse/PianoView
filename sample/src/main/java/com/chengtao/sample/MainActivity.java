@@ -12,12 +12,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
-import android.widget.Toast;
-import com.chengtao.pianoview.entity.AutoPlayEntity;
-import com.chengtao.pianoview.entity.Piano;
-import com.chengtao.pianoview.listener.OnPianoListener;
-import com.chengtao.pianoview.view.PianoView;
-import java.io.IOException;
+
+import app.pg.libpianoview.entity.AutoPlayEntity;
+import app.pg.libpianoview.entity.Piano;
+import app.pg.libpianoview.listener.OnPianoListener;
+import app.pg.libpianoview.view.PianoView;
+
 import java.util.ArrayList;
 
 @SuppressWarnings("FieldCanBeLocal") public class MainActivity extends Activity

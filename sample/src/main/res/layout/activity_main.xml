@@ -44,9 +44,9 @@
             android:background="@drawable/music" />
     </LinearLayout>
 
-    <com.chengtao.pianoview.view.PianoView
+    <app.pg.libpianoview.view.PianoView
         android:id="@+id/pv"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </com.chengtao.pianoview.view.PianoView>
+    </app.pg.libpianoview.view.PianoView>
 </LinearLayout>
