@@ -12,19 +12,20 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 
 
+//================================================================================================//
+//================================================================================================//
 public class Piano {
-  public final static int PIANO_NUMS = 88;
-  private final static int BLACK_PIANO_KEY_GROUPS = 8;
-  private final static int WHITE_PIANO_KEY_GROUPS = 9;
+  private final static int            BLACK_PIANO_KEY_GROUPS = 8;
+  private final static int            WHITE_PIANO_KEY_GROUPS = 9;
   private final ArrayList<PianoKey[]> blackPianoKeys = new ArrayList<>(BLACK_PIANO_KEY_GROUPS);
   private final ArrayList<PianoKey[]> whitePianoKeys = new ArrayList<>(WHITE_PIANO_KEY_GROUPS);
-  private int blackKeyWidth;
-  private int blackKeyHeight;
-  private int whiteKeyWidth;
-  private int whiteKeyHeight;
-  private int pianoWith = 0;
-  private float scale = 0;
-  private final Context context;
+  private int                         blackKeyWidth;
+  private int                         blackKeyHeight;
+  private int                         whiteKeyWidth;
+  private int                         whiteKeyHeight;
+  private int                         pianoWith = 0;
+  private float                       scale = 0;
+  private final Context               context;
 
   public Piano(Context context, float scale) {
     this.context = context;

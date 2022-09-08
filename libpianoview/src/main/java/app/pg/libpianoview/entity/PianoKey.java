@@ -5,6 +5,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 
+//================================================================================================//
+//================================================================================================//
 public class PianoKey {
   private Piano.PianoKeyType type;
   private Piano.PianoVoice voice;

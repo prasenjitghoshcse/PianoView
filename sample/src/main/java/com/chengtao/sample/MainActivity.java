@@ -17,8 +17,6 @@ import app.pg.libpianoview.entity.Piano;
 import app.pg.libpianoview.listener.OnPianoListener;
 import app.pg.libpianoview.view.PianoView;
 
-import java.util.ArrayList;
-
 @SuppressWarnings("FieldCanBeLocal") public class MainActivity extends Activity
     implements OnPianoListener, SeekBar.OnSeekBarChangeListener,
     View.OnClickListener {
@@ -51,7 +49,7 @@ import java.util.ArrayList;
     rightArrow = findViewById(R.id.iv_right_arrow);
     btnMusic = findViewById(R.id.iv_music);
     //listener
-    pianoView.setPianoListener(this);
+    pianoView.SetPianoListener(this);
     seekBar.setOnSeekBarChangeListener(this);
     rightArrow.setOnClickListener(this);
     leftArrow.setOnClickListener(this);
@@ -85,7 +83,7 @@ import java.util.ArrayList;
   }
 
   @Override public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-    pianoView.scroll(i);
+    pianoView.Scroll(i);
   }
 
   @Override public void onStartTrackingTouch(SeekBar seekBar) {
@@ -109,7 +107,7 @@ import java.util.ArrayList;
   @Override public void onClick(View view) {
     if (scrollProgress == 0) {
       try {
-        scrollProgress = (pianoView.getLayoutWidth() * 100) / pianoView.getPianoWidth();
+        scrollProgress = (pianoView.GetLayoutWidth() * 100) / pianoView.GetPianoWidth();
       } catch (Exception e) {
 
       }
