@@ -121,17 +121,19 @@ public class PianoView extends View {
                     paint.setColor(Color.parseColor(pianoColors[i]));
                     key.getKeyDrawable().draw(canvas);
 
-                    // Draw the key names (e.g. C0, A4 etc.)
-                    Rect r = key.getKeyDrawable().getBounds();
-                    int sideLength = (r.right - r.left) / 2;
-                    int left = r.left + sideLength / 2;
-                    int top = r.bottom - sideLength - sideLength / 3;
-                    int right = r.right - sideLength / 2;
-                    int bottom = r.bottom - sideLength / 3;
+                    // Draw the background rectangle behind the key names
+                    Rect keyRect = key.getKeyDrawable().getBounds();
+                    int sideLength = (keyRect.right - keyRect.left) / 2;
+                    int left = keyRect.left + sideLength / 2;
+                    int top = keyRect.bottom - sideLength - sideLength / 4;
+                    int right = keyRect.right - sideLength / 2;
+                    int bottom = keyRect.bottom - sideLength / 3;
                     square.set(left, top, right, bottom);
-                    canvas.drawRoundRect(square, 6f, 6f, paint);
+                    canvas.drawRoundRect(square, 12f, 12f, paint);
+
+                    // Draw the key names (e.g. C0, A4 etc.)
                     paint.setColor(Color.BLACK);
-                    paint.setTextSize(sideLength / 1.8f);
+                    paint.setTextSize(sideLength / 2f);
                     Paint.FontMetricsInt fontMetrics = paint.getFontMetricsInt();
                     int baseline =
                             (int) ((square.bottom + square.top - fontMetrics.bottom - fontMetrics.top) / 2);
