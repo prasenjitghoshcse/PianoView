@@ -19,17 +19,20 @@ public class Piano {
   private final static int            WHITE_PIANO_KEY_GROUPS = 9;
   private final ArrayList<PianoKey[]> blackPianoKeys = new ArrayList<>(BLACK_PIANO_KEY_GROUPS);
   private final ArrayList<PianoKey[]> whitePianoKeys = new ArrayList<>(WHITE_PIANO_KEY_GROUPS);
-  private int                         blackKeyWidth;
+  private final int                   blackKeyWidth;
   private int                         blackKeyHeight;
-  private int                         whiteKeyWidth;
+  private final int                   whiteKeyWidth;
   private int                         whiteKeyHeight;
   private int                         pianoWith = 0;
   private float                       scaleHeight = 0;
   private final Context               context;
 
-  public Piano(Context context, float argScaleHeight) {
+  public Piano(Context context, float argScaleHeight, int argWhiteKeyWidth) {
     this.context = context;
     this.scaleHeight = argScaleHeight;
+    this.whiteKeyWidth = argWhiteKeyWidth;
+    this.blackKeyWidth = Math.round(this.whiteKeyWidth * 0.77f); // TODO: Hardcoding can be parameterized
+
     InitPiano();
   }
 
@@ -37,9 +40,8 @@ public class Piano {
     if (scaleHeight > 0) {
       Drawable blackDrawable = ContextCompat.getDrawable(context, R.drawable.black_piano_key);
       Drawable whiteDrawable = ContextCompat.getDrawable(context, R.drawable.white_piano_key);
-      blackKeyWidth = blackDrawable.getIntrinsicWidth();
+      // Widths are already calculated
       blackKeyHeight = (int) ((float) blackDrawable.getIntrinsicHeight() * scaleHeight);
-      whiteKeyWidth = whiteDrawable.getIntrinsicWidth();
       whiteKeyHeight = (int) ((float) whiteDrawable.getIntrinsicHeight() * scaleHeight);
 
       // Setup black piano keys

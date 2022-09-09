@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -106,9 +107,10 @@ public class PianoView extends View {
     //==================================================================================//
     @Override protected void onDraw(Canvas canvas) {
         if (piano == null) {
+            int whiteKeyWidth = dpToPx(80); // 80dp default width - TODO: Hardcoding has to be made configurable
             minRange       = 0;
             maxRange       = layoutWidth;
-            piano          = new Piano(context, scaleHeight);
+            piano          = new Piano(context, scaleHeight, whiteKeyWidth);
             whitePianoKeys = piano.getWhitePianoKeys();
             blackPianoKeys = piano.getBlackPianoKeys();
         }
@@ -410,5 +412,12 @@ public class PianoView extends View {
     @Override protected void onRestoreInstanceState(Parcelable state) {
         super.onRestoreInstanceState(state);
         postDelayed(() -> ScrollByPercent(progress), 200);
+    }
+
+    //==================================================================================//
+    //==================================================================================//
+    private int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 }
