@@ -24,27 +24,28 @@ public class Piano {
   private int                         whiteKeyWidth;
   private int                         whiteKeyHeight;
   private int                         pianoWith = 0;
-  private float                       scale = 0;
+  private float                       scaleHeight = 0;
   private final Context               context;
 
-  public Piano(Context context, float scale) {
+  public Piano(Context context, float argScaleHeight) {
     this.context = context;
-    this.scale = scale;
+    this.scaleHeight = argScaleHeight;
     InitPiano();
   }
 
   private void InitPiano() {
-    if (scale > 0) {
+    if (scaleHeight > 0) {
       Drawable blackDrawable = ContextCompat.getDrawable(context, R.drawable.black_piano_key);
       Drawable whiteDrawable = ContextCompat.getDrawable(context, R.drawable.white_piano_key);
       blackKeyWidth = blackDrawable.getIntrinsicWidth();
-      blackKeyHeight = (int) ((float) blackDrawable.getIntrinsicHeight() * scale);
+      blackKeyHeight = (int) ((float) blackDrawable.getIntrinsicHeight() * scaleHeight);
       whiteKeyWidth = whiteDrawable.getIntrinsicWidth();
-      whiteKeyHeight = (int) ((float) whiteDrawable.getIntrinsicHeight() * scale);
+      whiteKeyHeight = (int) ((float) whiteDrawable.getIntrinsicHeight() * scaleHeight);
 
-      for (int i = 0; i < BLACK_PIANO_KEY_GROUPS; i++) {
+      // Setup black piano keys
+      for (int keyGroup = 0; keyGroup < BLACK_PIANO_KEY_GROUPS; keyGroup++) {
         PianoKey[] keys;
-        switch (i) {
+        switch (keyGroup) {
           case 0:
             keys = new PianoKey[1];
             break;
@@ -52,48 +53,60 @@ public class Piano {
             keys = new PianoKey[5];
             break;
         }
-        for (int j = 0; j < keys.length; j++) {
-          keys[j] = new PianoKey();
+        for (int keyIndexInGroup = 0; keyIndexInGroup < keys.length; keyIndexInGroup++) {
+          keys[keyIndexInGroup] = new PianoKey();
           Rect[] areaOfKey = new Rect[1];
-          keys[j].setType(PianoKeyType.BLACK);
-          keys[j].setGroup(i);
-          keys[j].setPositionOfGroup(j);
-          keys[j].setVoiceId(getVoiceFromResources("b" + i + j));
-          keys[j].setPressed(false);
-          keys[j].setKeyDrawable(
+          keys[keyIndexInGroup].setType(PianoKeyType.BLACK);
+          keys[keyIndexInGroup].setGroup(keyGroup);
+          keys[keyIndexInGroup].setPositionOfGroup(keyIndexInGroup);
+          keys[keyIndexInGroup].setVoiceId(getVoiceFromResources("b" + keyGroup + keyIndexInGroup));
+          keys[keyIndexInGroup].setPressed(false);
+          keys[keyIndexInGroup].setKeyDrawable(
               new ScaleDrawable(ContextCompat.getDrawable(context, R.drawable.black_piano_key),
-                  Gravity.NO_GRAVITY, 1, scale).getDrawable());
-          setBlackKeyDrawableBounds(i, j, keys[j].getKeyDrawable());
-          areaOfKey[0] = keys[j].getKeyDrawable().getBounds();
-          keys[j].setAreaOfKey(areaOfKey);
-          if (i == 0) {
-            keys[j].setVoice(PianoVoice.LA);
+                  Gravity.NO_GRAVITY, 1, scaleHeight).getDrawable());
+          setBlackKeyDrawableBounds(keyGroup, keyIndexInGroup, keys[keyIndexInGroup].getKeyDrawable());
+          areaOfKey[0] = keys[keyIndexInGroup].getKeyDrawable().getBounds();
+          keys[keyIndexInGroup].setAreaOfKey(areaOfKey);
+
+          // Group 0 has only one black key
+          if (keyGroup == 0) {
+            keys[keyIndexInGroup].setVoice(PianoVoice.LA);
+            keys[keyIndexInGroup].setMidiNoteNumber(22); // A#0/Bb0
             break;
           }
-          switch (j) {
+
+          // Other groups have 5 black keys each
+          switch (keyIndexInGroup) {
             case 0:
-              keys[j].setVoice(PianoVoice.DO);
+              keys[keyIndexInGroup].setVoice(PianoVoice.DO);
+              keys[keyIndexInGroup].setMidiNoteNumber(13 + (keyGroup * 12)); // C#/Db
               break;
             case 1:
-              keys[j].setVoice(PianoVoice.RE);
+              keys[keyIndexInGroup].setVoice(PianoVoice.RE);
+              keys[keyIndexInGroup].setMidiNoteNumber(15 + (keyGroup * 12)); // D#/Eb
               break;
             case 2:
-              keys[j].setVoice(PianoVoice.FA);
+              keys[keyIndexInGroup].setVoice(PianoVoice.FA);
+              keys[keyIndexInGroup].setMidiNoteNumber(18 + (keyGroup * 12)); // F#/Gb
               break;
             case 3:
-              keys[j].setVoice(PianoVoice.SO);
+              keys[keyIndexInGroup].setVoice(PianoVoice.SO);
+              keys[keyIndexInGroup].setMidiNoteNumber(20 + (keyGroup * 12)); // G#/Ab
               break;
             case 4:
-              keys[j].setVoice(PianoVoice.LA);
+              keys[keyIndexInGroup].setVoice(PianoVoice.LA);
+              keys[keyIndexInGroup].setMidiNoteNumber(22 + (keyGroup * 12)); // A#/Bb
               break;
           }
         }
         blackPianoKeys.add(keys);
       }
 
-      for (int i = 0; i < WHITE_PIANO_KEY_GROUPS; i++) {
+      // Setup white piano keys
+      for (int keyGroup = 0; keyGroup < WHITE_PIANO_KEY_GROUPS; keyGroup++) {
         PianoKey[] mKeys;
-        switch (i) {
+
+        switch (keyGroup) {
           case 0:
             mKeys = new PianoKey[2];
             break;
@@ -105,80 +118,90 @@ public class Piano {
             break;
         }
 
-        for (int j = 0; j < mKeys.length; j++) {
-          mKeys[j] = new PianoKey();
+        for (int keyIndexInGroup = 0; keyIndexInGroup < mKeys.length; keyIndexInGroup++) {
+          mKeys[keyIndexInGroup] = new PianoKey();
           //固定属性
-          mKeys[j].setType(PianoKeyType.WHITE);
-          mKeys[j].setGroup(i);
-          mKeys[j].setPositionOfGroup(j);
-          mKeys[j].setVoiceId(getVoiceFromResources("w" + i + j));
-          mKeys[j].setPressed(false);
-          mKeys[j].setKeyDrawable(
+          mKeys[keyIndexInGroup].setType(PianoKeyType.WHITE);
+          mKeys[keyIndexInGroup].setGroup(keyGroup);
+          mKeys[keyIndexInGroup].setPositionOfGroup(keyIndexInGroup);
+          mKeys[keyIndexInGroup].setVoiceId(getVoiceFromResources("w" + keyGroup + keyIndexInGroup));
+          mKeys[keyIndexInGroup].setPressed(false);
+          mKeys[keyIndexInGroup].setKeyDrawable(
               new ScaleDrawable(ContextCompat.getDrawable(context, R.drawable.white_piano_key),
-                  Gravity.NO_GRAVITY, 1, scale).getDrawable());
-          setWhiteKeyDrawableBounds(i, j, mKeys[j].getKeyDrawable());
+                  Gravity.NO_GRAVITY, 1, scaleHeight).getDrawable());
+          setWhiteKeyDrawableBounds(keyGroup, keyIndexInGroup, mKeys[keyIndexInGroup].getKeyDrawable());
           pianoWith += whiteKeyWidth;
 
-          if (i == 0) {
-            switch (j) {
+          if (keyGroup == 0) {
+            switch (keyIndexInGroup) {
               case 0:
-                mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.RIGHT));
-                mKeys[j].setVoice(PianoVoice.LA);
-                mKeys[j].setLetterName("A0");
+                mKeys[keyIndexInGroup].setAreaOfKey(getWhitePianoKeyArea(keyGroup, keyIndexInGroup, BlackKeyPosition.RIGHT));
+                mKeys[keyIndexInGroup].setVoice(PianoVoice.LA);
+                mKeys[keyIndexInGroup].setLetterName("A0");
+                mKeys[keyIndexInGroup].setMidiNoteNumber(21);
                 break;
               case 1:
-                mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.LEFT));
-                mKeys[j].setVoice(PianoVoice.SI);
-                mKeys[j].setLetterName("B0");
+                mKeys[keyIndexInGroup].setAreaOfKey(getWhitePianoKeyArea(keyGroup, keyIndexInGroup, BlackKeyPosition.LEFT));
+                mKeys[keyIndexInGroup].setVoice(PianoVoice.SI);
+                mKeys[keyIndexInGroup].setLetterName("B0");
+                mKeys[keyIndexInGroup].setMidiNoteNumber(23);
                 break;
             }
             continue;
           }
 
-          if (i == 8) {
+          if (keyGroup == 8) {
             Rect[] areaOfKey = new Rect[1];
-            areaOfKey[0] = mKeys[j].getKeyDrawable().getBounds();
-            mKeys[j].setAreaOfKey(areaOfKey);
-            mKeys[j].setVoice(PianoVoice.DO);
-            mKeys[j].setLetterName("C8");
+            areaOfKey[0] = mKeys[keyIndexInGroup].getKeyDrawable().getBounds();
+            mKeys[keyIndexInGroup].setAreaOfKey(areaOfKey);
+            mKeys[keyIndexInGroup].setVoice(PianoVoice.DO);
+            mKeys[keyIndexInGroup].setLetterName("C8");
+            mKeys[keyIndexInGroup].setMidiNoteNumber(108);
             break;
           }
 
-          switch (j) {
+          switch (keyIndexInGroup) {
             case 0:
-              mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.RIGHT));
-              mKeys[j].setVoice(PianoVoice.DO);
-              mKeys[j].setLetterName("C" + i);
+              mKeys[keyIndexInGroup].setAreaOfKey(getWhitePianoKeyArea(keyGroup, keyIndexInGroup, BlackKeyPosition.RIGHT));
+              mKeys[keyIndexInGroup].setVoice(PianoVoice.DO);
+              mKeys[keyIndexInGroup].setLetterName("C" + keyGroup);
+              mKeys[keyIndexInGroup].setMidiNoteNumber(12 + (keyGroup * 12)); // C
               break;
             case 1:
-              mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.LEFT_RIGHT));
-              mKeys[j].setVoice(PianoVoice.RE);
-              mKeys[j].setLetterName("D" + i);
+              mKeys[keyIndexInGroup].setAreaOfKey(getWhitePianoKeyArea(keyGroup, keyIndexInGroup, BlackKeyPosition.LEFT_RIGHT));
+              mKeys[keyIndexInGroup].setVoice(PianoVoice.RE);
+              mKeys[keyIndexInGroup].setLetterName("D" + keyGroup);
+              mKeys[keyIndexInGroup].setMidiNoteNumber(14 + (keyGroup * 12)); // D
               break;
             case 2:
-              mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.LEFT));
-              mKeys[j].setVoice(PianoVoice.MI);
-              mKeys[j].setLetterName("E" + i);
+              mKeys[keyIndexInGroup].setAreaOfKey(getWhitePianoKeyArea(keyGroup, keyIndexInGroup, BlackKeyPosition.LEFT));
+              mKeys[keyIndexInGroup].setVoice(PianoVoice.MI);
+              mKeys[keyIndexInGroup].setLetterName("E" + keyGroup);
+              mKeys[keyIndexInGroup].setMidiNoteNumber(16 + (keyGroup * 12)); // E
               break;
             case 3:
-              mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.RIGHT));
-              mKeys[j].setVoice(PianoVoice.FA);
-              mKeys[j].setLetterName("F" + i);
+              mKeys[keyIndexInGroup].setAreaOfKey(getWhitePianoKeyArea(keyGroup, keyIndexInGroup, BlackKeyPosition.RIGHT));
+              mKeys[keyIndexInGroup].setVoice(PianoVoice.FA);
+              mKeys[keyIndexInGroup].setLetterName("F" + keyGroup);
+              mKeys[keyIndexInGroup].setMidiNoteNumber(17 + (keyGroup * 12)); // F
               break;
             case 4:
-              mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.LEFT_RIGHT));
-              mKeys[j].setVoice(PianoVoice.SO);
-              mKeys[j].setLetterName("G" + i);
+              mKeys[keyIndexInGroup].setAreaOfKey(getWhitePianoKeyArea(keyGroup, keyIndexInGroup, BlackKeyPosition.LEFT_RIGHT));
+              mKeys[keyIndexInGroup].setVoice(PianoVoice.SO);
+              mKeys[keyIndexInGroup].setLetterName("G" + keyGroup);
+              mKeys[keyIndexInGroup].setMidiNoteNumber(19 + (keyGroup * 12)); // G
               break;
             case 5:
-              mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.LEFT_RIGHT));
-              mKeys[j].setVoice(PianoVoice.LA);
-              mKeys[j].setLetterName("A" + i);
+              mKeys[keyIndexInGroup].setAreaOfKey(getWhitePianoKeyArea(keyGroup, keyIndexInGroup, BlackKeyPosition.LEFT_RIGHT));
+              mKeys[keyIndexInGroup].setVoice(PianoVoice.LA);
+              mKeys[keyIndexInGroup].setLetterName("A" + keyGroup);
+              mKeys[keyIndexInGroup].setMidiNoteNumber(21 + (keyGroup * 12)); // A
               break;
             case 6:
-              mKeys[j].setAreaOfKey(getWhitePianoKeyArea(i, j, BlackKeyPosition.LEFT));
-              mKeys[j].setVoice(PianoVoice.SI);
-              mKeys[j].setLetterName("B" + i);
+              mKeys[keyIndexInGroup].setAreaOfKey(getWhitePianoKeyArea(keyGroup, keyIndexInGroup, BlackKeyPosition.LEFT));
+              mKeys[keyIndexInGroup].setVoice(PianoVoice.SI);
+              mKeys[keyIndexInGroup].setLetterName("B" + keyGroup);
+              mKeys[keyIndexInGroup].setMidiNoteNumber(23 + (keyGroup * 12)); // B
               break;
           }
         }
@@ -298,5 +321,9 @@ public class Piano {
 
   public int getPianoWith() {
     return pianoWith;
+  }
+
+  public int getWhiteKeyWidth() {
+    return whiteKeyWidth;
   }
 }

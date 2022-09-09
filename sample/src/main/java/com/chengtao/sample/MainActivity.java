@@ -72,18 +72,32 @@ import app.pg.libpianoview.view.PianoView;
 
   }
 
-  @Override public void onPianoClick(Piano.PianoKeyType type, Piano.PianoVoice voice, int group,
-      int positionOfGroup) {
+  @Override public void onPianoKeyPress(
+          Piano.PianoKeyType type,
+          Piano.PianoVoice voice,
+          int group,
+          int positionOfGroup,
+          int argMidiNoteNumber) {
     Log.d("MainActivity", "===================================================");
     Log.d("MainActivity", "Piano.PianoKeyType = " + type);
     Log.d("MainActivity", "Piano.PianoVoice   = " + voice);
     Log.d("MainActivity", "group              = " + group);
     Log.d("MainActivity", "positionOfGroup    = " + positionOfGroup);
+    Log.d("MainActivity", "argMidiNoteNumber  = " + argMidiNoteNumber);
     Log.d("MainActivity", "===================================================");
   }
 
+  @Override public void onPianoKeyRelease(
+          Piano.PianoKeyType type,
+          Piano.PianoVoice voice,
+          int group,
+          int positionOfGroup,
+          int argMidiNoteNumber) {
+
+  }
+
   @Override public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-    pianoView.Scroll(i);
+    pianoView.ScrollByPercent(i);
   }
 
   @Override public void onStartTrackingTouch(SeekBar seekBar) {
@@ -107,7 +121,7 @@ import app.pg.libpianoview.view.PianoView;
   @Override public void onClick(View view) {
     if (scrollProgress == 0) {
       try {
-        scrollProgress = (pianoView.GetLayoutWidth() * 100) / pianoView.GetPianoWidth();
+        scrollProgress = (pianoView.GetVisiblePianoWidth() * 100) / pianoView.GetFullPianoWidth();
       } catch (Exception e) {
 
       }

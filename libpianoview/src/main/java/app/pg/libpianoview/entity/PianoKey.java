@@ -9,15 +9,16 @@ import android.graphics.drawable.Drawable;
 //================================================================================================//
 public class PianoKey {
   private Piano.PianoKeyType type;
-  private Piano.PianoVoice voice;
-  private int group;
-  private int positionOfGroup;
-  private Drawable keyDrawable;
-  private int voiceId;
-  private boolean isPressed;
-  private Rect[] areaOfKey;
-  private String letterName;
-  private int fingerID = -1;
+  private Piano.PianoVoice   voice;
+  private int                group;
+  private int                positionOfGroup;
+  private Drawable           keyDrawable;
+  private int                voiceId;
+  private boolean            isPressed;
+  private Rect[]             areaOfKey;
+  private String             letterName;
+  private int                fingerID = -1;
+  private int                mMidiNoteNum = -1;
 
   public Piano.PianoKeyType getType() {
     return type;
@@ -114,5 +115,13 @@ public class PianoKey {
 
   public int getFingerID() {
     return fingerID;
+  }
+
+  public void setMidiNoteNumber(int argMidiNoteNum) {
+    mMidiNoteNum = argMidiNoteNum;
+  }
+
+  public int getMidiNoteNumber() {
+    return mMidiNoteNum;
   }
 }
