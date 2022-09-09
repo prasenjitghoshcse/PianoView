@@ -264,6 +264,11 @@ public class PianoView extends View {
                     key.setPressed(false);
                     key.resetFingerID();
                     pressedKeys.remove(key);
+
+                    if (pianoListener != null) {
+                        pianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
+                                key.getPositionOfGroup(), key.getMidiNoteNumber());
+                    }
                 }
             }
         }
@@ -279,6 +284,12 @@ public class PianoView extends View {
                 key.getKeyDrawable().setState(new int[] { -android.R.attr.state_pressed });
                 invalidate(key.getKeyDrawable().getBounds());
                 pressedKeys.remove(key);
+
+                if (pianoListener != null) {
+                    pianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
+                            key.getPositionOfGroup(), key.getMidiNoteNumber());
+                }
+
                 break;
             }
         }
@@ -292,6 +303,11 @@ public class PianoView extends View {
                 key.getKeyDrawable().setState(new int[] { -android.R.attr.state_pressed });
                 key.setPressed(false);
                 invalidate(key.getKeyDrawable().getBounds());
+
+                if (pianoListener != null) {
+                    pianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
+                            key.getPositionOfGroup(), key.getMidiNoteNumber());
+                }
             }
             pressedKeys.clear();
         }
