@@ -19,9 +19,9 @@ public class Piano {
   private final static int            WHITE_PIANO_KEY_GROUPS = 9;
   private final ArrayList<PianoKey[]> blackPianoKeys = new ArrayList<>(BLACK_PIANO_KEY_GROUPS);
   private final ArrayList<PianoKey[]> whitePianoKeys = new ArrayList<>(WHITE_PIANO_KEY_GROUPS);
-  private final int                   blackKeyWidth;
+  private int                         blackKeyWidth;
   private int                         blackKeyHeight;
-  private final int                   whiteKeyWidth;
+  private int                         whiteKeyWidth;
   private int                         whiteKeyHeight;
   private int                         pianoWith = 0;
   private float                       scaleHeight = 0;
@@ -30,8 +30,8 @@ public class Piano {
   public Piano(Context context, float argScaleHeight, int argWhiteKeyWidth) {
     this.context = context;
     this.scaleHeight = argScaleHeight;
-    this.whiteKeyWidth = argWhiteKeyWidth;
-    this.blackKeyWidth = Math.round(this.whiteKeyWidth * 0.77f); // TODO: Hardcoding can be parameterized
+
+    setWhiteKeyWidth(argWhiteKeyWidth);
 
     InitPiano();
   }
@@ -45,6 +45,8 @@ public class Piano {
       whiteKeyHeight = (int) ((float) whiteDrawable.getIntrinsicHeight() * scaleHeight);
 
       // Setup black piano keys
+      blackPianoKeys.clear();
+
       for (int keyGroup = 0; keyGroup < BLACK_PIANO_KEY_GROUPS; keyGroup++) {
         PianoKey[] keys;
         switch (keyGroup) {
@@ -55,6 +57,7 @@ public class Piano {
             keys = new PianoKey[5];
             break;
         }
+
         for (int keyIndexInGroup = 0; keyIndexInGroup < keys.length; keyIndexInGroup++) {
           keys[keyIndexInGroup] = new PianoKey();
           Rect[] areaOfKey = new Rect[1];
@@ -105,6 +108,8 @@ public class Piano {
       }
 
       // Setup white piano keys
+      whitePianoKeys.clear();
+      pianoWith = 0;
       for (int keyGroup = 0; keyGroup < WHITE_PIANO_KEY_GROUPS; keyGroup++) {
         PianoKey[] mKeys;
 
@@ -327,5 +332,18 @@ public class Piano {
 
   public int getWhiteKeyWidth() {
     return whiteKeyWidth;
+  }
+
+  public void setWhiteKeyWidth(int argWhiteKeyWidth) {
+    this.whiteKeyWidth = argWhiteKeyWidth;
+    this.blackKeyWidth = Math.round(this.whiteKeyWidth * 0.77f); // TODO: Hardcoding can be parameterized
+
+    InitPiano();
+  }
+
+  public void setScaleHeight(float argScaleHeight) {
+    this.scaleHeight = argScaleHeight;
+
+    InitPiano();
   }
 }

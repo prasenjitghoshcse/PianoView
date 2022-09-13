@@ -27,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 //================================================================================================//
 public class PianoView extends View {
     private final static String TAG = "PianoView";
-    private Piano piano = null;
+    private Piano mPiano = null;
     private ArrayList<PianoKey[]> whitePianoKeys;
     private ArrayList<PianoKey[]> blackPianoKeys;
     private final CopyOnWriteArrayList<PianoKey> pressedKeys = new CopyOnWriteArrayList<>();
@@ -100,24 +100,31 @@ public class PianoView extends View {
         scaleHeight = (float) (height - getPaddingTop() - getPaddingBottom()) / (float) (whiteKeyHeight);
         layoutWidth = width - getPaddingLeft() - getPaddingRight();
 
+        // Refresh view on height (scale) change
+        if (mPiano != null) {
+            mPiano.setScaleHeight(scaleHeight);
+        }
+
         setMeasuredDimension(width, height);
     }
 
     //==================================================================================//
     //==================================================================================//
     @Override protected void onDraw(Canvas canvas) {
-        if (piano == null) {
+        if (mPiano == null) {
             int whiteKeyWidth = dpToPx(80); // 80dp default width - TODO: Hardcoding has to be made configurable
             minRange       = 0;
             maxRange       = layoutWidth;
-            piano          = new Piano(context, scaleHeight, whiteKeyWidth);
-            whitePianoKeys = piano.getWhitePianoKeys();
-            blackPianoKeys = piano.getBlackPianoKeys();
+            mPiano         = new Piano(context, scaleHeight, whiteKeyWidth);
+            whitePianoKeys = mPiano.getWhitePianoKeys();
+            blackPianoKeys = mPiano.getBlackPianoKeys();
         }
 
+        // Draw the white keys
         if (whitePianoKeys != null) {
             for (int i = 0; i < whitePianoKeys.size(); i++) {
                 for (PianoKey key : whitePianoKeys.get(i)) {
+                    // Draw the piano keys
                     paint.setColor(Color.parseColor(pianoColors[i]));
                     key.getKeyDrawable().draw(canvas);
 
@@ -143,6 +150,7 @@ public class PianoView extends View {
             }
         }
 
+        // Draw the black keys
         if (blackPianoKeys != null) {
             for (int i = 0; i < blackPianoKeys.size(); i++) {
                 for (PianoKey key : blackPianoKeys.get(i)) {
@@ -151,7 +159,8 @@ public class PianoView extends View {
             }
         }
 
-        if (!isInitFinish && piano != null && pianoListener != null) {
+        // Handle draw finish
+        if (!isInitFinish && mPiano != null && pianoListener != null) {
             isInitFinish = true;
             pianoListener.onPianoInitFinish();
         }
@@ -320,8 +329,8 @@ public class PianoView extends View {
     //==================================================================================//
     //==================================================================================//
     public int GetFullPianoWidth() {
-        if (piano != null) {
-            return piano.getPianoWith();
+        if (mPiano != null) {
+            return mPiano.getPianoWith();
         }
         return 0;
     }
@@ -402,11 +411,22 @@ public class PianoView extends View {
     //==================================================================================//
     //==================================================================================//
     public int GetWhiteKeyWidth() {
-        if (piano != null) {
-            return piano.getWhiteKeyWidth();
+        if (mPiano != null) {
+            return mPiano.getWhiteKeyWidth();
         }
 
         return 0;
+    }
+
+    //==================================================================================//
+    //==================================================================================//
+    public void SetWhiteKeyWidth(int argWhiteKeyWidth) {
+        if (mPiano != null) {
+            mPiano.setWhiteKeyWidth(argWhiteKeyWidth);
+
+            isInitFinish = false;
+            invalidate();
+        }
     }
 
     //==================================================================================//
