@@ -208,18 +208,24 @@ public class PianoView extends View {
         int x = (int) event.getX(which) + this.getScrollX();
         int y = (int) event.getY(which);
 
-        for (int i = 0; i < whitePianoKeys.size(); i++) {
-            for (PianoKey key : whitePianoKeys.get(i)) {
-                if (!key.isPressed() && key.contains(x, y)) {
-                    HandleWhiteKeyDown(which, event, key);
-                }
-            }
-        }
-
         for (int i = 0; i < blackPianoKeys.size(); i++) {
             for (PianoKey key : blackPianoKeys.get(i)) {
                 if (!key.isPressed() && key.contains(x, y)) {
                     HandleBlackKeyDown(which, event, key);
+
+                    // No more keys are needed to be checked
+                    return;
+                }
+            }
+        }
+
+        for (int i = 0; i < whitePianoKeys.size(); i++) {
+            for (PianoKey key : whitePianoKeys.get(i)) {
+                if (!key.isPressed() && key.contains(x, y)) {
+                    HandleWhiteKeyDown(which, event, key);
+
+                    // No more keys are needed to be checked
+                    return;
                 }
             }
         }
@@ -282,6 +288,9 @@ public class PianoView extends View {
                         pianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
                                 key.getPositionOfGroup(), key.getMidiNoteNumber());
                     }
+
+                    // No more keys are needed to be checked
+                    break;
                 }
             }
         }
@@ -303,6 +312,7 @@ public class PianoView extends View {
                             key.getPositionOfGroup(), key.getMidiNoteNumber());
                 }
 
+                // No more keys are needed to be checked
                 break;
             }
         }
