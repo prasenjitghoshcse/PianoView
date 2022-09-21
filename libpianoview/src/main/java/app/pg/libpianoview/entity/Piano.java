@@ -323,35 +323,44 @@ public class Piano {
 
     //==================================================================================//
     //==================================================================================//
-    private void setWhiteKeyDrawableBounds(int group, int positionOfGroup, Drawable drawable) {
-        int offset = 0;
+    private void setWhiteKeyDrawableBounds(int argOctaveGroup, int argPositionInGroup, Drawable argDrawable) {
+        int whiteOffset = 0;
 
-        if (group == 0) {
-            offset = 5;
+        if (argOctaveGroup == 0) {
+            whiteOffset = 5;
         }
 
-        drawable.setBounds((7 * group - 5 + offset + positionOfGroup) * mWhiteKeyWidth, 0,
-            (7 * group - 4 + offset + positionOfGroup) * mWhiteKeyWidth, mLayoutHeight);
+        int tmpLeft = ((7 * argOctaveGroup) + (whiteOffset - 5) + argPositionInGroup) * mWhiteKeyWidth;
+
+        argDrawable.setBounds(
+                tmpLeft,
+                0,
+                tmpLeft + mWhiteKeyWidth,
+                mLayoutHeight);
     }
 
     //==================================================================================//
     //==================================================================================//
-    private void setBlackKeyDrawableBounds(int group, int positionOfGroup, Drawable drawable) {
+    private void setBlackKeyDrawableBounds(int argOctaveGroup, int argPositionInGroup, Drawable argDrawable) {
         int whiteOffset = 0;
         int blackOffset = 0;
 
-        if (group == 0) {
+        if (argOctaveGroup == 0) {
             whiteOffset = 5;
         }
 
-        if (positionOfGroup == 2 || positionOfGroup == 3 || positionOfGroup == 4) {
+        if (argPositionInGroup == 2 || argPositionInGroup == 3 || argPositionInGroup == 4) {
             blackOffset = 1;
         }
 
-        drawable.setBounds((7 * group - 4 + whiteOffset + blackOffset + positionOfGroup) * mWhiteKeyWidth
-                - mBlackKeyWidth / 2, 0,
-            (7 * group - 4 + whiteOffset + blackOffset + positionOfGroup) * mWhiteKeyWidth
-                + mBlackKeyWidth / 2, mBlackKeyHeight);
+        int tmpLeft = ((7 * argOctaveGroup) + (whiteOffset - 4) + (argPositionInGroup + blackOffset)) * mWhiteKeyWidth
+                - (mBlackKeyWidth / 2);
+
+        argDrawable.setBounds(
+                tmpLeft,
+                0,
+                tmpLeft + mBlackKeyWidth,
+                mBlackKeyHeight);
     }
 
     //==================================================================================//
