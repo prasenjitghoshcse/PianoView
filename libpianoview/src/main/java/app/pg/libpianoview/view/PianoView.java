@@ -9,6 +9,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
+
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -27,14 +29,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 //================================================================================================//
 public class PianoView extends View {
     private final static String TAG = "PianoView";
+    private final static int kWhiteKeyWidthDpMin = 50;
+    private final static int kWhiteKeyWidthDpMax = 120;
+    private final static int kWhiteKeyWidthDpDefault = 80;
+
     private Piano mPiano = null;
-    private ArrayList<PianoKey[]> whitePianoKeys;
-    private ArrayList<PianoKey[]> blackPianoKeys;
-    private final CopyOnWriteArrayList<PianoKey> pressedKeys = new CopyOnWriteArrayList<>();
-    private final Paint paint;
-    private final RectF square;
-    private String[] pianoColors = {
-            "#C0C0C0",
+    private ArrayList<PianoKey[]> mWhitePianoKeys;
+    private ArrayList<PianoKey[]> mBlackPianoKeys;
+    private final CopyOnWriteArrayList<PianoKey> mPressedKeys = new CopyOnWriteArrayList<>();
+    private final Paint mPaint;
+    private final RectF mRectF;
+    private String[] mPianoColors = {
+            "#AFDFB1",
             "#FBB3B3",
             "#A2DCD7",
             "#D1C3EC",
@@ -42,44 +48,44 @@ public class PianoView extends View {
             "#E5EF82",
             "#98DFFF",
             "#AFDFB1",
-            "#C0C0C0"
+            "#FBB3B3"
     };
-    private final Context   context;
-    private int             layoutWidth = 0;
-    private float           scaleHeight = 1;
-    private OnPianoListener pianoListener;
-    private int             progress = 0;
-    private boolean         canPress = true;
-    private boolean         isInitFinish = false;
-    private int             minRange = 0;
-    private int             maxRange = 0;
+    private final Context   mContext;
+    private int             mLayoutWidth  = 0;
+    private int             mLayoutHeight = 0;
+    private OnPianoListener mPianoListener;
+    private boolean         mCanPress     = true;
+    private boolean         mIsInitFinish = false;
 
     //==================================================================================//
     //==================================================================================//
-    public PianoView(Context context) {
-        this(context, null);
+    public PianoView(Context argContext) {
+        this(argContext, null);
     }
 
     //==================================================================================//
-    public PianoView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+    public PianoView(Context argContext, AttributeSet argAttrs) {
+        this(argContext, argAttrs, 0);
     }
 
     //==================================================================================//
-    public PianoView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        this.context = context;
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.FILL);
-        square = new RectF();
+    public PianoView(Context argContext, AttributeSet argAttrs, int argDefStyleAttr) {
+        super(argContext, argAttrs, argDefStyleAttr);
+
+        mContext = argContext;
+
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setStyle(Paint.Style.FILL);
+
+        mRectF = new RectF();
     }
 
     //==================================================================================//
     //==================================================================================//
     @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         Log.e(TAG, "onMeasure");
-        Drawable whiteKeyDrawable = ContextCompat.getDrawable(context, R.drawable.white_piano_key);
+        Drawable whiteKeyDrawable = ContextCompat.getDrawable(mContext, R.drawable.white_piano_key);
 
         int whiteKeyHeight = whiteKeyDrawable.getIntrinsicHeight();
         int width = MeasureSpec.getSize(widthMeasureSpec);
@@ -90,19 +96,21 @@ public class PianoView extends View {
             case MeasureSpec.AT_MOST:
                 height = Math.min(height, whiteKeyHeight);
                 break;
+
             case MeasureSpec.UNSPECIFIED:
                 height = whiteKeyHeight;
                 break;
+
             default:
                 break;
         }
 
-        scaleHeight = (float) (height - getPaddingTop() - getPaddingBottom()) / (float) (whiteKeyHeight);
-        layoutWidth = width - getPaddingLeft() - getPaddingRight();
+        mLayoutWidth  = width - getPaddingLeft() - getPaddingRight();
+        mLayoutHeight = height - getPaddingTop() - getPaddingBottom();
 
-        // Refresh view on height (scale) change
+        // Refresh view on height change
         if (mPiano != null) {
-            mPiano.setScaleHeight(scaleHeight);
+            mPiano.setLayoutDimension(mLayoutWidth, mLayoutHeight);
         }
 
         setMeasuredDimension(width, height);
@@ -112,20 +120,18 @@ public class PianoView extends View {
     //==================================================================================//
     @Override protected void onDraw(Canvas canvas) {
         if (mPiano == null) {
-            int whiteKeyWidth = dpToPx(80); // 80dp default width - TODO: Hardcoding has to be made configurable
-            minRange       = 0;
-            maxRange       = layoutWidth;
-            mPiano         = new Piano(context, scaleHeight, whiteKeyWidth);
-            whitePianoKeys = mPiano.getWhitePianoKeys();
-            blackPianoKeys = mPiano.getBlackPianoKeys();
+            int whiteKeyWidth = dpToPx(kWhiteKeyWidthDpDefault);
+            mPiano          = new Piano(mContext, mLayoutWidth, mLayoutHeight, whiteKeyWidth);
+            mWhitePianoKeys = mPiano.getWhitePianoKeys();
+            mBlackPianoKeys = mPiano.getBlackPianoKeys();
         }
 
-        // Draw the white keys
-        if (whitePianoKeys != null) {
-            for (int i = 0; i < whitePianoKeys.size(); i++) {
-                for (PianoKey key : whitePianoKeys.get(i)) {
+        // Draw all the white keys
+        if (mWhitePianoKeys != null) {
+            for (int i = 0; i < mWhitePianoKeys.size(); i++) {
+                for (PianoKey key : mWhitePianoKeys.get(i)) {
                     // Draw the piano keys
-                    paint.setColor(Color.parseColor(pianoColors[i]));
+                    mPaint.setColor(Color.parseColor(mPianoColors[i]));
                     key.getKeyDrawable().draw(canvas);
 
                     // Draw the background rectangle behind the key names
@@ -135,44 +141,47 @@ public class PianoView extends View {
                     int top = keyRect.bottom - sideLength - sideLength / 4;
                     int right = keyRect.right - sideLength / 2;
                     int bottom = keyRect.bottom - sideLength / 3;
-                    square.set(left, top, right, bottom);
-                    canvas.drawRoundRect(square, 12f, 12f, paint);
+                    mRectF.set(left, top, right, bottom);
+                    canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
 
                     // Draw the key names (e.g. C0, A4 etc.)
-                    paint.setColor(Color.BLACK);
-                    paint.setTextSize(sideLength / 2f);
-                    Paint.FontMetricsInt fontMetrics = paint.getFontMetricsInt();
+                    mPaint.setColor(Color.BLACK);
+                    mPaint.setTextSize(sideLength / 2f);
+                    Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
                     int baseline =
-                            (int) ((square.bottom + square.top - fontMetrics.bottom - fontMetrics.top) / 2);
-                    paint.setTextAlign(Paint.Align.CENTER);
-                    canvas.drawText(key.getLetterName(), square.centerX(), baseline, paint);
+                            (int) ((mRectF.bottom + mRectF.top - fontMetrics.bottom - fontMetrics.top) / 2);
+                    mPaint.setTextAlign(Paint.Align.CENTER);
+                    canvas.drawText(key.getLetterName(), mRectF.centerX(), baseline, mPaint);
                 }
             }
         }
 
-        // Draw the black keys
-        if (blackPianoKeys != null) {
-            for (int i = 0; i < blackPianoKeys.size(); i++) {
-                for (PianoKey key : blackPianoKeys.get(i)) {
+        // Draw all the black keys
+        if (mBlackPianoKeys != null) {
+            for (int i = 0; i < mBlackPianoKeys.size(); i++) {
+                for (PianoKey key : mBlackPianoKeys.get(i)) {
                     key.getKeyDrawable().draw(canvas);
                 }
             }
         }
 
         // Handle draw finish
-        if (!isInitFinish && mPiano != null && pianoListener != null) {
-            isInitFinish = true;
-            pianoListener.onPianoInitFinish();
+        if (!mIsInitFinish && mPiano != null && mPianoListener != null) {
+            mIsInitFinish = true;
+
+            mPianoListener.onPianoInitFinish();
         }
     }
 
     //==================================================================================//
     //==================================================================================//
     @Override public boolean onTouchEvent(MotionEvent event) {
-        int action = event.getActionMasked();
-        if (!canPress) {
+        if (!mCanPress) {
             return false;
         }
+
+        int action = event.getActionMasked();
+
         switch (action) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -196,9 +205,11 @@ public class PianoView extends View {
             case MotionEvent.ACTION_CANCEL:
                 HandleUp();
                 return false;
+
             default:
                 break;
         }
+
         return true;
     }
 
@@ -208,8 +219,8 @@ public class PianoView extends View {
         int x = (int) event.getX(which) + this.getScrollX();
         int y = (int) event.getY(which);
 
-        for (int i = 0; i < blackPianoKeys.size(); i++) {
-            for (PianoKey key : blackPianoKeys.get(i)) {
+        for (int i = 0; i < mBlackPianoKeys.size(); i++) {
+            for (PianoKey key : mBlackPianoKeys.get(i)) {
                 if (!key.isPressed() && key.contains(x, y)) {
                     HandleBlackKeyDown(which, event, key);
 
@@ -219,8 +230,8 @@ public class PianoView extends View {
             }
         }
 
-        for (int i = 0; i < whitePianoKeys.size(); i++) {
-            for (PianoKey key : whitePianoKeys.get(i)) {
+        for (int i = 0; i < mWhitePianoKeys.size(); i++) {
+            for (PianoKey key : mWhitePianoKeys.get(i)) {
                 if (!key.isPressed() && key.contains(x, y)) {
                     HandleWhiteKeyDown(which, event, key);
 
@@ -241,11 +252,11 @@ public class PianoView extends View {
             key.setFingerID(event.getPointerId(which));
         }
 
-        pressedKeys.add(key);
+        mPressedKeys.add(key);
         invalidate(key.getKeyDrawable().getBounds());
 
-        if (pianoListener != null) {
-            pianoListener.onPianoKeyPress(key.getType(), key.getVoice(), key.getGroup(),
+        if (mPianoListener != null) {
+            mPianoListener.onPianoKeyPress(key.getType(), key.getVoice(), key.getGroup(),
                     key.getPositionOfGroup(), key.getMidiNoteNumber());
         }
     }
@@ -260,11 +271,11 @@ public class PianoView extends View {
             key.setFingerID(event.getPointerId(which));
         }
 
-        pressedKeys.add(key);
+        mPressedKeys.add(key);
         invalidate(key.getKeyDrawable().getBounds());
 
-        if (pianoListener != null) {
-            pianoListener.onPianoKeyPress(key.getType(), key.getVoice(), key.getGroup(),
+        if (mPianoListener != null) {
+            mPianoListener.onPianoKeyPress(key.getType(), key.getVoice(), key.getGroup(),
                     key.getPositionOfGroup(), key.getMidiNoteNumber());
         }
     }
@@ -275,17 +286,17 @@ public class PianoView extends View {
         int x = (int) event.getX(which) + this.getScrollX();
         int y = (int) event.getY(which);
 
-        for (PianoKey key : pressedKeys) {
+        for (PianoKey key : mPressedKeys) {
             if (key.getFingerID() == event.getPointerId(which)) {
                 if (!key.contains(x, y)) {
                     key.getKeyDrawable().setState(new int[] { -android.R.attr.state_pressed });
                     invalidate(key.getKeyDrawable().getBounds());
                     key.setPressed(false);
                     key.resetFingerID();
-                    pressedKeys.remove(key);
+                    mPressedKeys.remove(key);
 
-                    if (pianoListener != null) {
-                        pianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
+                    if (mPianoListener != null) {
+                        mPianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
                                 key.getPositionOfGroup(), key.getMidiNoteNumber());
                     }
 
@@ -299,16 +310,16 @@ public class PianoView extends View {
     //==================================================================================//
     //==================================================================================//
     private void HandlePointerUp(int pointerId) {
-        for (PianoKey key : pressedKeys) {
+        for (PianoKey key : mPressedKeys) {
             if (key.getFingerID() == pointerId) {
                 key.setPressed(false);
                 key.resetFingerID();
                 key.getKeyDrawable().setState(new int[] { -android.R.attr.state_pressed });
                 invalidate(key.getKeyDrawable().getBounds());
-                pressedKeys.remove(key);
+                mPressedKeys.remove(key);
 
-                if (pianoListener != null) {
-                    pianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
+                if (mPianoListener != null) {
+                    mPianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
                             key.getPositionOfGroup(), key.getMidiNoteNumber());
                 }
 
@@ -321,18 +332,19 @@ public class PianoView extends View {
     //==================================================================================//
     //==================================================================================//
     private void HandleUp() {
-        if (pressedKeys.size() > 0) {
-            for (PianoKey key : pressedKeys) {
+        if (mPressedKeys.size() > 0) {
+            for (PianoKey key : mPressedKeys) {
                 key.getKeyDrawable().setState(new int[] { -android.R.attr.state_pressed });
                 key.setPressed(false);
                 invalidate(key.getKeyDrawable().getBounds());
 
-                if (pianoListener != null) {
-                    pianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
+                if (mPianoListener != null) {
+                    mPianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
                             key.getPositionOfGroup(), key.getMidiNoteNumber());
                 }
             }
-            pressedKeys.clear();
+
+            mPressedKeys.clear();
         }
     }
 
@@ -342,48 +354,28 @@ public class PianoView extends View {
         if (mPiano != null) {
             return mPiano.getPianoWith();
         }
+
         return 0;
     }
 
     //==================================================================================//
     //==================================================================================//
     public int GetVisiblePianoWidth() {
-        return layoutWidth;
+        return mLayoutWidth;
     }
 
     //==================================================================================//
     //==================================================================================//
     public void SetPianoColors(String[] pianoColors) {
         if (pianoColors.length == 9) {
-            this.pianoColors = pianoColors;
+            this.mPianoColors = pianoColors;
         }
     }
 
     //==================================================================================//
     //==================================================================================//
     public void SetCanPress(boolean canPress) {
-        this.canPress = canPress;
-    }
-
-    //==================================================================================//
-    //==================================================================================//
-    public void ScrollByPercent(int argProgressPercent) {
-        int x;
-        switch (argProgressPercent) {
-            case 0:
-                x = 0;
-                break;
-            case 100:
-              x = GetFullPianoWidth() - GetVisiblePianoWidth();
-              break;
-            default:
-              x = (int) (((float) argProgressPercent / 100f) * (float) (GetFullPianoWidth() - GetVisiblePianoWidth()));
-              break;
-        }
-        minRange = x;
-        maxRange = x + GetVisiblePianoWidth();
-        this.scrollTo(x, 0);
-        this.progress = argProgressPercent;
+        this.mCanPress = canPress;
     }
 
     //==================================================================================//
@@ -415,7 +407,7 @@ public class PianoView extends View {
     //==================================================================================//
     //==================================================================================//
     public void SetPianoListener(OnPianoListener pianoListener) {
-        this.pianoListener = pianoListener;
+        this.mPianoListener = pianoListener;
     }
 
     //==================================================================================//
@@ -430,26 +422,56 @@ public class PianoView extends View {
 
     //==================================================================================//
     //==================================================================================//
-    public void SetWhiteKeyWidth(int argWhiteKeyWidth) {
+    public void SetWhiteKeyWidth(int argWhiteKeyWidthPx) {
         if (mPiano != null) {
-            mPiano.setWhiteKeyWidth(argWhiteKeyWidth);
+            int minWidthPx = dpToPx(kWhiteKeyWidthDpMin);
+            int maxWidthPx = dpToPx(kWhiteKeyWidthDpMax);
+            int currentWidth = mPiano.getWhiteKeyWidth();
 
-            isInitFinish = false;
-            invalidate();
+            if(argWhiteKeyWidthPx != currentWidth) {
+                if(argWhiteKeyWidthPx > maxWidthPx) {
+                    currentWidth = maxWidthPx;
+                }
+                else if(argWhiteKeyWidthPx < minWidthPx) {
+                    currentWidth = minWidthPx;
+                }
+                else {
+                    currentWidth = argWhiteKeyWidthPx;
+                }
+
+                mPiano.setWhiteKeyWidth(currentWidth);
+
+                mIsInitFinish = false;
+
+                invalidate();
+            }
         }
     }
 
     //==================================================================================//
     //==================================================================================//
-    @Override protected void onRestoreInstanceState(Parcelable state) {
+    @Nullable
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        return super.onSaveInstanceState();
+
+        // TODO:
+    }
+
+    //==================================================================================//
+    //==================================================================================//
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
         super.onRestoreInstanceState(state);
-        postDelayed(() -> ScrollByPercent(progress), 200);
+
+        // TODO:
     }
 
     //==================================================================================//
     //==================================================================================//
     private int dpToPx(int dp) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 }
