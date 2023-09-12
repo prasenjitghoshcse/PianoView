@@ -54,7 +54,9 @@ public class PianoView extends View {
     private int             mLayoutWidth  = 0;
     private int             mLayoutHeight = 0;
     private OnPianoListener mPianoListener;
-    private boolean         mCanPress     = true;
+    private boolean         mKeyPressEnabled = true;
+    private boolean         mShowNoteNamesEnabled = true;
+    private boolean         mOctaveColoringEnabled = true;
     private boolean         mIsInitFinish = false;
 
     //==================================================================================//
@@ -134,7 +136,7 @@ public class PianoView extends View {
                     mPaint.setColor(Color.parseColor(mPianoColors[i]));
                     key.getKeyDrawable().draw(canvas);
 
-                    // Draw the background rectangle behind the key names
+                    // Drawing Key names and octave colours
                     Rect keyRect = key.getKeyDrawable().getBounds();
                     int sideLength = (keyRect.right - keyRect.left) / 2;
                     int left = keyRect.left + sideLength / 2;
@@ -142,16 +144,22 @@ public class PianoView extends View {
                     int right = keyRect.right - sideLength / 2;
                     int bottom = keyRect.bottom - sideLength / 3;
                     mRectF.set(left, top, right, bottom);
-                    canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
+
+                    if(mOctaveColoringEnabled) {
+                        // Draw the background rectangle behind the key names
+                        canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
+                    }
 
                     // Draw the key names (e.g. C0, A4 etc.)
-                    mPaint.setColor(Color.BLACK);
-                    mPaint.setTextSize(sideLength / 2f);
-                    Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
-                    int baseline =
-                            (int) ((mRectF.bottom + mRectF.top - fontMetrics.bottom - fontMetrics.top) / 2);
-                    mPaint.setTextAlign(Paint.Align.CENTER);
-                    canvas.drawText(key.getLetterName(), mRectF.centerX(), baseline, mPaint);
+                    if(mShowNoteNamesEnabled) {
+                        mPaint.setColor(Color.BLACK);
+                        mPaint.setTextSize(sideLength / 2f);
+                        Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
+                        int baseline =
+                                (int) ((mRectF.bottom + mRectF.top - fontMetrics.bottom - fontMetrics.top) / 2);
+                        mPaint.setTextAlign(Paint.Align.CENTER);
+                        canvas.drawText(key.getLetterName(), mRectF.centerX(), baseline, mPaint);
+                    }
                 }
             }
         }
@@ -176,7 +184,7 @@ public class PianoView extends View {
     //==================================================================================//
     //==================================================================================//
     @Override public boolean onTouchEvent(MotionEvent event) {
-        if (!mCanPress) {
+        if (!mKeyPressEnabled) {
             return false;
         }
 
@@ -374,8 +382,20 @@ public class PianoView extends View {
 
     //==================================================================================//
     //==================================================================================//
-    public void SetCanPress(boolean canPress) {
-        this.mCanPress = canPress;
+    public void SetKeyPressEnabled(boolean argIsEnabled) {
+        this.mKeyPressEnabled = argIsEnabled;
+    }
+
+    //==================================================================================//
+    //==================================================================================//
+    public void SetShowNoteNamesEnabled(boolean argIsEnabled) {
+        this.mShowNoteNamesEnabled = argIsEnabled;
+    }
+
+    //==================================================================================//
+    //==================================================================================//
+    public void SetOctaveColoringEnabled(boolean argIsEnabled) {
+        this.mOctaveColoringEnabled = argIsEnabled;
     }
 
     //==================================================================================//
@@ -428,18 +448,9 @@ public class PianoView extends View {
             int maxWidthPx = dpToPx(kWhiteKeyWidthDpMax);
             int currentWidth = mPiano.getWhiteKeyWidth();
 
-            if(argWhiteKeyWidthPx != currentWidth) {
-                if(argWhiteKeyWidthPx > maxWidthPx) {
-                    currentWidth = maxWidthPx;
-                }
-                else if(argWhiteKeyWidthPx < minWidthPx) {
-                    currentWidth = minWidthPx;
-                }
-                else {
-                    currentWidth = argWhiteKeyWidthPx;
-                }
-
-                mPiano.setWhiteKeyWidth(currentWidth);
+            // Set width if provided value is valid
+            if((argWhiteKeyWidthPx != currentWidth) && (argWhiteKeyWidthPx <= maxWidthPx) && (argWhiteKeyWidthPx >= minWidthPx)) {
+                mPiano.setWhiteKeyWidth(argWhiteKeyWidthPx);
 
                 mIsInitFinish = false;
 

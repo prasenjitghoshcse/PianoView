@@ -97,7 +97,8 @@ import app.pg.libpianoview.view.PianoView;
   }
 
   @Override public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-    pianoView.ScrollByPercent(i);
+    // FIXME:
+//    pianoView.ScrollByPercent(i);
   }
 
   @Override public void onStartTrackingTouch(SeekBar seekBar) {
