@@ -39,7 +39,7 @@ public class PianoView extends View {
     private final CopyOnWriteArrayList<PianoKey> mPressedKeys = new CopyOnWriteArrayList<>();
     private final Paint mPaint;
     private final RectF mRectF;
-    private String[] mPianoColors = {
+    private String[] mPianoOctaveColors = {
             "#AFDFB1",
             "#FBB3B3",
             "#A2DCD7",
@@ -138,22 +138,46 @@ public class PianoView extends View {
                     // Calculating the bound rectangle for key name and bound octave colour rect
                     Rect keyRect = key.getKeyDrawable().getBounds();
                     int unusedWidth = (keyRect.right - keyRect.left) / 2;
-                    int left = keyRect.left + (unusedWidth / 2);
-                    int right = keyRect.right - (unusedWidth / 2);
-                    int top = keyRect.bottom - unusedWidth - (unusedWidth / 4);
-                    int bottom = keyRect.bottom - (unusedWidth / 3);
+                    int keyHeight   = keyRect.bottom - keyRect.top;
+
+                    // Calculating margins, paddings, text size, octave colour rect dynamically. TODO: consider some default max/min values
+                    int marginLeft               = unusedWidth/2;
+                    int marginRight              = unusedWidth/2;
+                    int marginBottom             = (int)(keyHeight * 0.04f); // Bottom Margin is a function of key height, not- of key width
+                    int octaveColourRectHeight   = (int)(keyHeight * 0.02f);
+                    int keyNameTxtSize           = (int)(unusedWidth * 0.50f);
+                    int keyNameRectPaddingTop    = keyNameTxtSize/5;
+                    int keyNameRectPaddingBottom = keyNameTxtSize/4;
+
+                    // The octave colour bottom rect
+                    int left   = keyRect.left + marginLeft;
+                    int right  = keyRect.right - marginRight;
+                    int bottom = keyRect.bottom - marginBottom;
+                    int top    = keyRect.bottom - marginBottom - octaveColourRectHeight;
                     mRectF.set(left, top, right, bottom);
 
-                    // Draw the background rectangle behind the key names
+                    // Draw the octave colouring bottom rectangle
                     if(mOctaveColoringEnabled) {
-                        mPaint.setColor(Color.parseColor(mPianoColors[i]));
+                        mPaint.setColor(Color.parseColor(mPianoOctaveColors[i]));
                         canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
                     }
 
+                    // The key name bound rectangle
+                    left   = keyRect.left + marginLeft;
+                    right  = keyRect.right - marginRight;
+                    bottom = keyRect.bottom - marginBottom - octaveColourRectHeight;
+                    top    = bottom - keyNameTxtSize - (keyNameRectPaddingTop + keyNameRectPaddingBottom);
+                    mRectF.set(left, top, right, bottom);
+
+                    // For debugging - Draw the background rectangle behind the key names
+//                    if(mOctaveColoringEnabled) {
+//                        mPaint.setColor(Color.parseColor(mPianoOctaveColors[i]));
+//                        canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
+//                    }
+
                     // Draw the key names (e.g. C0, A4 etc.)
                     if(mShowNoteNamesEnabled) {
-                        mPaint.setColor(Color.BLACK);
-                        float keyNameTxtSize = unusedWidth / 2f;
+                        mPaint.setColor(Color.GRAY);
                         mPaint.setTextSize(keyNameTxtSize);
                         Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
                         int baseline =
@@ -172,9 +196,9 @@ public class PianoView extends View {
                     key.getKeyDrawable().draw(canvas);
 
                     // Calculating the positional measurements
-                    Rect keyRect = key.getKeyDrawable().getBounds();
+                    Rect keyRect    = key.getKeyDrawable().getBounds();
                     int unusedWidth = (keyRect.right - keyRect.left) / 2;
-                    int keyHeight = keyRect.bottom - keyRect.top;
+                    int keyHeight   = keyRect.bottom - keyRect.top;
                     // Calculating margins, paddings, text size dynamically. TODO: consider some default max/min values
                     int marginLeft     = unusedWidth/2;
                     int marginRight    = unusedWidth/2;
@@ -183,14 +207,14 @@ public class PianoView extends View {
                     int paddingTop     = unusedWidth/5;
                     int paddingBottom  = unusedWidth/5;
 
-                    // The bound rectangle
+                    // The key name bound rectangle
                     int left   = keyRect.left + marginLeft;
                     int right  = keyRect.right - marginRight;
                     int bottom = keyRect.bottom - marginBottom;
                     int top    = keyRect.bottom - marginBottom - (2 * keyNameTxtSize) - (paddingTop + paddingBottom);
                     mRectF.set(left, top, right, bottom);
 
-                    // For debugging
+                    // For debugging - the embedding rectangle
 //                    if(mOctaveColoringEnabled) {
 //                        // Draw the background rectangle behind the key names
 //                        mPaint.setColor(Color.parseColor(mPianoColors[i]));
@@ -199,12 +223,13 @@ public class PianoView extends View {
 
                     // Draw the key names (e.g. C♯, A♭ etc.)
                     if(mShowNoteNamesEnabled) {
-                        mPaint.setColor(Color.WHITE);
+                        mPaint.setColor(Color.LTGRAY);
                         mPaint.setTextSize(keyNameTxtSize);
                         mPaint.setTextAlign(Paint.Align.CENTER);
 
                         String keyName = key.getLetterName();
                         if (keyName.contains("\n")) {
+                            // Multi-line text
                             String[] texts = keyName.split("\n");
                             float y = mRectF.top;
                             for (String txt : texts) {
@@ -217,6 +242,7 @@ public class PianoView extends View {
                             }
                         }
                         else {
+                            // Single line text
                             canvas.drawText(
                                     keyName,
                                     mRectF.centerX(),
@@ -429,9 +455,9 @@ public class PianoView extends View {
 
     //==================================================================================//
     //==================================================================================//
-    public void SetPianoColors(String[] pianoColors) {
+    public void SetPianoOctaveColors(String[] pianoColors) {
         if (pianoColors.length == 9) {
-            this.mPianoColors = pianoColors;
+            this.mPianoOctaveColors = pianoColors;
         }
     }
 
@@ -444,13 +470,19 @@ public class PianoView extends View {
     //==================================================================================//
     //==================================================================================//
     public void SetShowNoteNamesEnabled(boolean argIsEnabled) {
-        this.mShowNoteNamesEnabled = argIsEnabled;
+        if(argIsEnabled != this.mShowNoteNamesEnabled) {
+            this.mShowNoteNamesEnabled = argIsEnabled;
+            invalidate();
+        }
     }
 
     //==================================================================================//
     //==================================================================================//
     public void SetOctaveColoringEnabled(boolean argIsEnabled) {
-        this.mOctaveColoringEnabled = argIsEnabled;
+        if(argIsEnabled != this.mOctaveColoringEnabled) {
+            this.mOctaveColoringEnabled = argIsEnabled;
+            invalidate();
+        }
     }
 
     //==================================================================================//
