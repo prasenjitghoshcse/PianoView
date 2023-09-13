@@ -80,6 +80,7 @@ public class Piano {
                     if (keyGroup == 0) {
                         blackKeys[keyIndexInGroup].setVoice(PianoVoice.LA);
                         blackKeys[keyIndexInGroup].setMidiNoteNumber(22); // A#0/Bb0
+                        blackKeys[keyIndexInGroup].setLetterName("A♯\nB♭");
                         break;
                     }
 
@@ -88,26 +89,31 @@ public class Piano {
                         case 0:
                             blackKeys[keyIndexInGroup].setVoice(PianoVoice.DO);
                             blackKeys[keyIndexInGroup].setMidiNoteNumber(13 + (keyGroup * 12)); // C#/Db
+                            blackKeys[keyIndexInGroup].setLetterName("C♯\nD♭");
                             break;
 
                         case 1:
                             blackKeys[keyIndexInGroup].setVoice(PianoVoice.RE);
                             blackKeys[keyIndexInGroup].setMidiNoteNumber(15 + (keyGroup * 12)); // D#/Eb
+                            blackKeys[keyIndexInGroup].setLetterName("D♯\nE♭");
                             break;
 
                         case 2:
                             blackKeys[keyIndexInGroup].setVoice(PianoVoice.FA);
                             blackKeys[keyIndexInGroup].setMidiNoteNumber(18 + (keyGroup * 12)); // F#/Gb
+                            blackKeys[keyIndexInGroup].setLetterName("F♯\nG♭");
                             break;
 
                         case 3:
                             blackKeys[keyIndexInGroup].setVoice(PianoVoice.SO);
                             blackKeys[keyIndexInGroup].setMidiNoteNumber(20 + (keyGroup * 12)); // G#/Ab
+                            blackKeys[keyIndexInGroup].setLetterName("G♯\nA♭");
                             break;
 
                         case 4:
                             blackKeys[keyIndexInGroup].setVoice(PianoVoice.LA);
                             blackKeys[keyIndexInGroup].setMidiNoteNumber(22 + (keyGroup * 12)); // A#/Bb
+                            blackKeys[keyIndexInGroup].setLetterName("A♯\nB♭");
                             break;
                     }
                 }
