@@ -308,24 +308,28 @@ public class PianoView extends View {
         int x = (int) event.getX(which) + this.getScrollX();
         int y = (int) event.getY(which);
 
-        for (int i = 0; i < mBlackPianoKeys.size(); i++) {
-            for (PianoKey key : mBlackPianoKeys.get(i)) {
-                if (!key.isPressed() && key.contains(x, y)) {
-                    HandleBlackKeyDown(which, event, key);
+        if (mBlackPianoKeys != null) {
+            for (int i = 0; i < mBlackPianoKeys.size(); i++) {
+                for (PianoKey key : mBlackPianoKeys.get(i)) {
+                    if (!key.isPressed() && key.contains(x, y)) {
+                        HandleBlackKeyDown(which, event, key);
 
-                    // No more keys are needed to be checked
-                    return;
+                        // No more keys are needed to be checked
+                        return;
+                    }
                 }
             }
         }
 
-        for (int i = 0; i < mWhitePianoKeys.size(); i++) {
-            for (PianoKey key : mWhitePianoKeys.get(i)) {
-                if (!key.isPressed() && key.contains(x, y)) {
-                    HandleWhiteKeyDown(which, event, key);
+        if (mWhitePianoKeys != null) {
+            for (int i = 0; i < mWhitePianoKeys.size(); i++) {
+                for (PianoKey key : mWhitePianoKeys.get(i)) {
+                    if (!key.isPressed() && key.contains(x, y)) {
+                        HandleWhiteKeyDown(which, event, key);
 
-                    // No more keys are needed to be checked
-                    return;
+                        // No more keys are needed to be checked
+                        return;
+                    }
                 }
             }
         }
