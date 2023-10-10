@@ -68,7 +68,7 @@ public class Piano {
                     blackKeys[keyIndexInGroup].setType(PianoKeyType.BLACK);
                     blackKeys[keyIndexInGroup].setGroup(keyGroup);
                     blackKeys[keyIndexInGroup].setPositionOfGroup(keyIndexInGroup);
-                    blackKeys[keyIndexInGroup].setVoiceId(getVoiceFromResources("b" + keyGroup + keyIndexInGroup));
+//                    blackKeys[keyIndexInGroup].setVoiceId(getVoiceFromResources("b" + keyGroup + keyIndexInGroup));
                     blackKeys[keyIndexInGroup].setPressed(false);
                     blackKeys[keyIndexInGroup].setKeyDrawable(ContextCompat.getDrawable(mContext, R.drawable.black_piano_key));
 
@@ -148,7 +148,7 @@ public class Piano {
                     whiteKeys[keyIndexInGroup].setType(PianoKeyType.WHITE);
                     whiteKeys[keyIndexInGroup].setGroup(keyGroup);
                     whiteKeys[keyIndexInGroup].setPositionOfGroup(keyIndexInGroup);
-                    whiteKeys[keyIndexInGroup].setVoiceId(getVoiceFromResources("w" + keyGroup + keyIndexInGroup));
+//                    whiteKeys[keyIndexInGroup].setVoiceId(getVoiceFromResources("w" + keyGroup + keyIndexInGroup));
                     whiteKeys[keyIndexInGroup].setPressed(false);
                     whiteKeys[keyIndexInGroup].setKeyDrawable(ContextCompat.getDrawable(mContext, R.drawable.white_piano_key));
 
@@ -268,10 +268,6 @@ public class Piano {
 
     private enum BlackKeyPosition {
         LEFT, CENTER, RIGHT
-    }
-
-    private int getVoiceFromResources(String voiceName) {
-        return mContext.getResources().getIdentifier(voiceName, "raw", mContext.getPackageName());
     }
 
     //==================================================================================//
