@@ -34,8 +34,6 @@ public class PianoView extends View {
     private final static int kWhiteKeyWidthDpDefault = 80;
 
     private Piano mPiano = null;
-    private ArrayList<PianoKey[]> mWhitePianoKeys;
-    private ArrayList<PianoKey[]> mBlackPianoKeys;
     private final CopyOnWriteArrayList<PianoKey> mPressedKeys = new CopyOnWriteArrayList<>();
     private final Paint mPaint;
     private final RectF mRectF;
@@ -121,17 +119,19 @@ public class PianoView extends View {
     //==================================================================================//
     //==================================================================================//
     @Override protected void onDraw(Canvas canvas) {
+        // Ensure initialized Piano object
         if (mPiano == null) {
             int whiteKeyWidth = dpToPx(kWhiteKeyWidthDpDefault);
-            mPiano          = new Piano(mContext, mLayoutWidth, mLayoutHeight, whiteKeyWidth);
-            mWhitePianoKeys = mPiano.getWhitePianoKeys();
-            mBlackPianoKeys = mPiano.getBlackPianoKeys();
+            mPiano = new Piano(mContext, mLayoutWidth, mLayoutHeight, whiteKeyWidth);
         }
 
+        ArrayList<PianoKey[]> whitePianoKeys = mPiano.getWhitePianoKeys();
+        ArrayList<PianoKey[]> blackPianoKeys = mPiano.getBlackPianoKeys();
+
         // Draw all the white keys
-        if (mWhitePianoKeys != null) {
-            for (int i = 0; i < mWhitePianoKeys.size(); i++) {
-                for (PianoKey key : mWhitePianoKeys.get(i)) {
+        if (whitePianoKeys != null) {
+            for (int i = 0; i < whitePianoKeys.size(); i++) {
+                for (PianoKey key : whitePianoKeys.get(i)) {
                     // Draw the piano keys
                     key.getKeyDrawable().draw(canvas);
 
@@ -190,9 +190,9 @@ public class PianoView extends View {
         }
 
         // Draw all the black keys
-        if (mBlackPianoKeys != null) {
-            for (int i = 0; i < mBlackPianoKeys.size(); i++) {
-                for (PianoKey key : mBlackPianoKeys.get(i)) {
+        if (blackPianoKeys != null) {
+            for (int i = 0; i < blackPianoKeys.size(); i++) {
+                for (PianoKey key : blackPianoKeys.get(i)) {
                     key.getKeyDrawable().draw(canvas);
 
                     // Calculating the positional measurements
@@ -308,27 +308,32 @@ public class PianoView extends View {
         int x = (int) event.getX(which) + this.getScrollX();
         int y = (int) event.getY(which);
 
-        if (mBlackPianoKeys != null) {
-            for (int i = 0; i < mBlackPianoKeys.size(); i++) {
-                for (PianoKey key : mBlackPianoKeys.get(i)) {
-                    if (!key.isPressed() && key.contains(x, y)) {
-                        HandleBlackKeyDown(which, event, key);
+        if(null != mPiano) {
+            ArrayList<PianoKey[]> whitePianoKeys = mPiano.getWhitePianoKeys();
+            ArrayList<PianoKey[]> blackPianoKeys = mPiano.getBlackPianoKeys();
 
-                        // No more keys are needed to be checked
-                        return;
+            if (blackPianoKeys != null) {
+                for (int i = 0; i < blackPianoKeys.size(); i++) {
+                    for (PianoKey key : blackPianoKeys.get(i)) {
+                        if (!key.isPressed() && key.contains(x, y)) {
+                            HandleBlackKeyDown(which, event, key);
+
+                            // No more keys are needed to be checked
+                            return;
+                        }
                     }
                 }
             }
-        }
 
-        if (mWhitePianoKeys != null) {
-            for (int i = 0; i < mWhitePianoKeys.size(); i++) {
-                for (PianoKey key : mWhitePianoKeys.get(i)) {
-                    if (!key.isPressed() && key.contains(x, y)) {
-                        HandleWhiteKeyDown(which, event, key);
+            if (whitePianoKeys != null) {
+                for (int i = 0; i < whitePianoKeys.size(); i++) {
+                    for (PianoKey key : whitePianoKeys.get(i)) {
+                        if (!key.isPressed() && key.contains(x, y)) {
+                            HandleWhiteKeyDown(which, event, key);
 
-                        // No more keys are needed to be checked
-                        return;
+                            // No more keys are needed to be checked
+                            return;
+                        }
                     }
                 }
             }
