@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import app.pg.libpianoview.R;
+import app.pg.libpianoview.entity.HighlightedKeyInfo;
 import app.pg.libpianoview.entity.Piano;
 import app.pg.libpianoview.entity.PianoKey;
 import app.pg.libpianoview.listener.OnPianoListener;
@@ -55,6 +56,7 @@ public class PianoView extends View {
     private boolean         mKeyPressEnabled = true;
     private boolean         mShowNoteNamesEnabled = true;
     private boolean         mOctaveColoringEnabled = true;
+    private boolean         mSelectedKeys1HighlightEnabled = true;
     private boolean         mIsInitFinish = false;
 
     //==================================================================================//
@@ -132,7 +134,7 @@ public class PianoView extends View {
         if (whitePianoKeys != null) {
             for (int i = 0; i < whitePianoKeys.size(); i++) {
                 for (PianoKey key : whitePianoKeys.get(i)) {
-                    // Draw the piano keys
+                    // Draw the piano key
                     key.getKeyDrawable().draw(canvas);
 
                     // Calculating the bound rectangle for key name and bound octave colour rect
@@ -141,49 +143,88 @@ public class PianoView extends View {
                     int keyHeight   = keyRect.bottom - keyRect.top;
 
                     // Calculating margins, paddings, text size, octave colour rect dynamically. TODO: consider some default max/min values
+                    // Common margins
                     int marginLeft               = unusedWidth/2;
                     int marginRight              = unusedWidth/2;
                     int marginBottom             = (int)(keyHeight * 0.04f); // Bottom Margin is a function of key height, not- of key width
+                    // Octave colour rectangle related
                     int octaveColourRectHeight   = (int)(keyHeight * 0.02f);
+                    int octaveColourRectLeft     = keyRect.left + marginLeft;
+                    int octaveColourRectRight    = keyRect.right - marginRight;
+                    int octaveColourRectBottom   = keyRect.bottom - marginBottom;
+                    int octaveColourRectTop      = keyRect.bottom - marginBottom - octaveColourRectHeight;
+                    // Key name text related
                     int keyNameTxtSize           = (int)(unusedWidth * 0.50f);
                     int keyNameRectPaddingTop    = keyNameTxtSize/5;
                     int keyNameRectPaddingBottom = keyNameTxtSize/4;
+                    int keyNameRectLeft          = keyRect.left + marginLeft;
+                    int keyNameRectRight         = keyRect.right - marginRight;
+                    int keyNameRectBottom        = keyRect.bottom - marginBottom - octaveColourRectHeight;
+                    int keyNameRectTop           = keyNameRectBottom - keyNameRectPaddingBottom - keyNameTxtSize - keyNameRectPaddingTop;
+                    int keyNameRectHeight        = keyNameRectBottom - keyNameRectTop;
+                    // Highlighted key name 1 related
+                    int highlightedName1TxtSize           = (int)(unusedWidth * 0.60f);
+                    int highlightedName1RectPaddingTop    = highlightedName1TxtSize/5;
+                    int highlightedName1RectPaddingBottom = highlightedName1TxtSize/4;
+                    int highlightedName1RectLeft          = keyRect.left + marginLeft;
+                    int highlightedName1RectRight         = keyRect.right - marginRight;
+                    int highlightedName1RectBottom        = keyRect.bottom - marginBottom - octaveColourRectHeight - keyNameRectHeight;
+                    int highlightedName1RectTop           = highlightedName1RectBottom - highlightedName1RectPaddingBottom - highlightedName1TxtSize - highlightedName1RectPaddingTop;
 
-                    // The octave colour bottom rect
-                    int left   = keyRect.left + marginLeft;
-                    int right  = keyRect.right - marginRight;
-                    int bottom = keyRect.bottom - marginBottom;
-                    int top    = keyRect.bottom - marginBottom - octaveColourRectHeight;
-                    mRectF.set(left, top, right, bottom);
+                    // Draw the octave colour bottom rect
+                    {
+                        mRectF.set(octaveColourRectLeft, octaveColourRectTop, octaveColourRectRight, octaveColourRectBottom);
 
-                    // Draw the octave colouring bottom rectangle
-                    if(mOctaveColoringEnabled) {
-                        mPaint.setColor(Color.parseColor(mPianoOctaveColors[i]));
-                        canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
+                        // Draw the octave colouring bottom rectangle
+                        if(mOctaveColoringEnabled) {
+                            mPaint.setColor(Color.parseColor(mPianoOctaveColors[i]));
+                            canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
+                        }
                     }
 
-                    // The key name bound rectangle
-                    left   = keyRect.left + marginLeft;
-                    right  = keyRect.right - marginRight;
-                    bottom = keyRect.bottom - marginBottom - octaveColourRectHeight;
-                    top    = bottom - keyNameTxtSize - (keyNameRectPaddingTop + keyNameRectPaddingBottom);
-                    mRectF.set(left, top, right, bottom);
+                    // Draw key names
+                    {
+                        // The key name bound rectangle
+                        mRectF.set(keyNameRectLeft, keyNameRectTop, keyNameRectRight, keyNameRectBottom);
 
-                    // For debugging - Draw the background rectangle behind the key names
+                        // For debugging - Draw the background rectangle behind the key names
 //                    if(mOctaveColoringEnabled) {
 //                        mPaint.setColor(Color.parseColor(mPianoOctaveColors[i]));
 //                        canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
 //                    }
 
-                    // Draw the key names (e.g. C0, A4 etc.)
-                    if(mShowNoteNamesEnabled) {
-                        mPaint.setColor(Color.GRAY);
-                        mPaint.setTextSize(keyNameTxtSize);
-                        Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
-                        int baseline =
-                                (int) ((mRectF.bottom + mRectF.top - fontMetrics.bottom - fontMetrics.top) / 2);
-                        mPaint.setTextAlign(Paint.Align.CENTER);
-                        canvas.drawText(key.getLetterName(), mRectF.centerX(), baseline, mPaint);
+                        // Draw the key names (e.g. C0, A4 etc.)
+                        if(mShowNoteNamesEnabled) {
+                            mPaint.setColor(Color.GRAY);
+                            mPaint.setTextSize(keyNameTxtSize);
+                            Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
+                            int baseline =
+                                    (int) ((mRectF.bottom + mRectF.top - fontMetrics.bottom - fontMetrics.top) / 2);
+                            mPaint.setTextAlign(Paint.Align.CENTER);
+                            canvas.drawText(key.getLetterName(), mRectF.centerX(), baseline, mPaint);
+                        }
+                    }
+
+                    // Draw the selected keys1 highlight
+                    if(mSelectedKeys1HighlightEnabled && (!"".equals(key.getHighlightedNoteName())))
+                    {
+                        // The highlighted key name bound rectangle
+                        mRectF.set(highlightedName1RectLeft, highlightedName1RectTop, highlightedName1RectRight, highlightedName1RectBottom);
+
+                        // the background rectangle
+                        mPaint.setColor(Color.parseColor(mPianoOctaveColors[0]));
+                        canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
+
+                        // Draw the key name
+                        {
+                            mPaint.setColor(Color.BLACK);
+                            mPaint.setTextSize(highlightedName1TxtSize);
+                            Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
+                            int baseline =
+                                    (int) ((mRectF.bottom + mRectF.top - fontMetrics.bottom - fontMetrics.top) / 2);
+                            mPaint.setTextAlign(Paint.Align.CENTER);
+                            canvas.drawText(key.getHighlightedNoteName(), mRectF.centerX(), baseline, mPaint);
+                        }
                     }
                 }
             }
@@ -193,6 +234,7 @@ public class PianoView extends View {
         if (blackPianoKeys != null) {
             for (int i = 0; i < blackPianoKeys.size(); i++) {
                 for (PianoKey key : blackPianoKeys.get(i)) {
+                    // Draw the piano key
                     key.getKeyDrawable().draw(canvas);
 
                     // Calculating the positional measurements
@@ -200,54 +242,90 @@ public class PianoView extends View {
                     int unusedWidth = (keyRect.right - keyRect.left) / 2;
                     int keyHeight   = keyRect.bottom - keyRect.top;
                     // Calculating margins, paddings, text size dynamically. TODO: consider some default max/min values
+                    // Common margins
                     int marginLeft     = unusedWidth/2;
                     int marginRight    = unusedWidth/2;
                     int marginBottom   = (int)(keyHeight * 0.14f); // Bottom Margin is a function of key height, not- of key width
-                    int keyNameTxtSize = (int)(unusedWidth * 0.55f);
-                    int paddingTop     = unusedWidth/5;
-                    int paddingBottom  = unusedWidth/5;
+                    // Key name text relayed
+                    int keyNameTxtSize            = (int)(unusedWidth * 0.55f);
+                    int keyNameRectPaddingTop     = unusedWidth/5;
+                    int keyNameRectPaddingBottom  = unusedWidth/5;
+                    int keyNameRectLeft           = keyRect.left + marginLeft;
+                    int keyNameRectRight          = keyRect.right - marginRight;
+                    int keyNameRectBottom         = keyRect.bottom - marginBottom;
+                    int keyNameRectTop            = keyRect.bottom - marginBottom - keyNameRectPaddingBottom - (2 * keyNameTxtSize) - keyNameRectPaddingTop;
+                    int keyNameRectHeight         = keyNameRectBottom - keyNameRectTop;
+                    // Highlighted key name 1 related
+                    int highlightedName1TxtSize           = (int)(unusedWidth * 0.65f);
+                    int highlightedName1RectPaddingTop    = highlightedName1TxtSize/5;
+                    int highlightedName1RectPaddingBottom = highlightedName1TxtSize/4;
+                    int highlightedName1RectLeft          = keyRect.left + marginLeft;
+                    int highlightedName1RectRight         = keyRect.right - marginRight;
+                    int highlightedName1RectBottom        = keyRect.bottom - marginBottom - keyNameRectHeight;
+                    int highlightedName1RectTop           = highlightedName1RectBottom - highlightedName1RectPaddingBottom - highlightedName1TxtSize - highlightedName1RectPaddingTop;
 
-                    // The key name bound rectangle
-                    int left   = keyRect.left + marginLeft;
-                    int right  = keyRect.right - marginRight;
-                    int bottom = keyRect.bottom - marginBottom;
-                    int top    = keyRect.bottom - marginBottom - (2 * keyNameTxtSize) - (paddingTop + paddingBottom);
-                    mRectF.set(left, top, right, bottom);
+                    // Draw the key name
+                    {
+                        // The key name bound rectangle
+                        mRectF.set(keyNameRectLeft, keyNameRectTop, keyNameRectRight, keyNameRectBottom);
 
-                    // For debugging - the embedding rectangle
+                        // For debugging - the embedding rectangle
 //                    if(mOctaveColoringEnabled) {
 //                        // Draw the background rectangle behind the key names
 //                        mPaint.setColor(Color.parseColor(mPianoColors[i]));
 //                        canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
 //                    }
 
-                    // Draw the key names (e.g. C♯, A♭ etc.)
-                    if(mShowNoteNamesEnabled) {
-                        mPaint.setColor(Color.LTGRAY);
-                        mPaint.setTextSize(keyNameTxtSize);
-                        mPaint.setTextAlign(Paint.Align.CENTER);
+                        // Draw the key names (e.g. C♯, A♭ etc.)
+                        if(mShowNoteNamesEnabled) {
+                            mPaint.setColor(Color.LTGRAY);
+                            mPaint.setTextSize(keyNameTxtSize);
+                            mPaint.setTextAlign(Paint.Align.CENTER);
 
-                        String keyName = key.getLetterName();
-                        if (keyName.contains("\n")) {
-                            // Multi-line text
-                            String[] texts = keyName.split("\n");
-                            float y = mRectF.top;
-                            for (String txt : texts) {
+                            String keyName = key.getLetterName();
+                            if (keyName.contains("\n")) {
+                                // Multi-line text
+                                String[] texts = keyName.split("\n");
+                                float y = mRectF.top;
+                                for (String txt : texts) {
+                                    canvas.drawText(
+                                            txt,
+                                            mRectF.centerX(),
+                                            y + keyNameRectPaddingTop + keyNameTxtSize,
+                                            mPaint);
+                                    y += mPaint.getTextSize();
+                                }
+                            }
+                            else {
+                                // Single line text
                                 canvas.drawText(
-                                        txt,
+                                        keyName,
                                         mRectF.centerX(),
-                                        y + paddingTop + keyNameTxtSize,
+                                        mRectF.top + keyNameRectPaddingTop + keyNameTxtSize,
                                         mPaint);
-                                y += mPaint.getTextSize();
                             }
                         }
-                        else {
-                            // Single line text
-                            canvas.drawText(
-                                    keyName,
-                                    mRectF.centerX(),
-                                    mRectF.top + paddingTop + keyNameTxtSize,
-                                    mPaint);
+
+                        // Draw the selected keys1 highlight
+                        if(mSelectedKeys1HighlightEnabled && (!"".equals(key.getHighlightedNoteName())))
+                        {
+                            // The highlighted key name bound rectangle
+                            mRectF.set(highlightedName1RectLeft, highlightedName1RectTop, highlightedName1RectRight, highlightedName1RectBottom);
+
+                            // the background rectangle
+                            mPaint.setColor(Color.parseColor(mPianoOctaveColors[0]));
+                            canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
+
+                            // Draw the key name
+                            {
+                                mPaint.setColor(Color.BLACK);
+                                mPaint.setTextSize(highlightedName1TxtSize);
+                                Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
+                                int baseline =
+                                        (int) ((mRectF.bottom + mRectF.top - fontMetrics.bottom - fontMetrics.top) / 2);
+                                mPaint.setTextAlign(Paint.Align.CENTER);
+                                canvas.drawText(key.getHighlightedNoteName(), mRectF.centerX(), baseline, mPaint);
+                            }
                         }
                     }
                 }
@@ -496,6 +574,15 @@ public class PianoView extends View {
 
     //==================================================================================//
     //==================================================================================//
+    public void SetSelectedKeys1HighlightEnabled(boolean argIsEnabled) {
+        if(argIsEnabled != this.mSelectedKeys1HighlightEnabled) {
+            this.mSelectedKeys1HighlightEnabled = argIsEnabled;
+            invalidate();
+        }
+    }
+
+    //==================================================================================//
+    //==================================================================================//
     public void SafeScrollTo(int argScrollToPx) {
         int minScroll = 0;
         int maxScroll = GetFullPianoWidth() - GetVisiblePianoWidth();
@@ -552,6 +639,19 @@ public class PianoView extends View {
 
                 invalidate();
             }
+        }
+    }
+
+    //==================================================================================//
+    //==================================================================================//
+    public void SetHighlightedKeys(ArrayList<HighlightedKeyInfo> argHighlightedKeyInfoList) {
+        if(null != mPiano) {
+            // Reset previous highlighted keys (if any)
+            mPiano.setHighlightedKeys(null);
+            // Highlight new keys
+            mPiano.setHighlightedKeys(argHighlightedKeyInfoList);
+
+            invalidate();
         }
     }
 

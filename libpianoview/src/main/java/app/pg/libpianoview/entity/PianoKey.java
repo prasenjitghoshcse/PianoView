@@ -4,6 +4,10 @@ package app.pg.libpianoview.entity;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 
 //================================================================================================//
 //================================================================================================//
@@ -19,6 +23,7 @@ public class PianoKey {
   private String             letterName;
   private int                fingerID = -1;
   private int                mMidiNoteNum = -1;
+  private String             mTmpHighlightedNoteName = "";
 
   public Piano.PianoKeyType getType() {
     return type;
@@ -123,5 +128,23 @@ public class PianoKey {
 
   public int getMidiNoteNumber() {
     return mMidiNoteNum;
+  }
+
+  public static void sortListAscendingByMidiId(ArrayList<PianoKey> argPianoKeyList) {
+    Collections.sort(argPianoKeyList, new Comparator<PianoKey>(){
+      public int compare(PianoKey o1, PianoKey o2){
+        if(o1.mMidiNoteNum == o2.mMidiNoteNum)
+          return 0;
+        return o1.mMidiNoteNum < o2.mMidiNoteNum ? -1 : 1;
+      }
+    });
+  }
+
+  public String getHighlightedNoteName() {
+    return mTmpHighlightedNoteName;
+  }
+
+  public void setHighlightedNoteName(String argHighlightedNoteName) {
+    mTmpHighlightedNoteName = argHighlightedNoteName;
   }
 }

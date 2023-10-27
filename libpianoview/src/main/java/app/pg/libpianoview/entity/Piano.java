@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 
 //================================================================================================//
+// Class used for selecting some notes for highlighting
 //================================================================================================//
 public class Piano {
     private final static int            BLACK_PIANO_KEY_GROUPS = 8;
@@ -20,6 +21,7 @@ public class Piano {
 
     private final ArrayList<PianoKey[]> mBlackPianoKeys = new ArrayList<>(BLACK_PIANO_KEY_GROUPS);
     private final ArrayList<PianoKey[]> mWhitePianoKeys = new ArrayList<>(WHITE_PIANO_KEY_GROUPS);
+    private final ArrayList<PianoKey>   mAllPianoKeysSorted = new ArrayList<>(); // Used for O(1) search/access
     private int                         mLayoutWidth  = 0; // TODO: Should be used for setting the minimum white key widths so that no blank space is there in the view when key width becomes smaller
     private int                         mLayoutHeight = 0;
     private int                         mBlackKeyWidth;
@@ -48,6 +50,7 @@ public class Piano {
 
             // Setup black piano keys
             mBlackPianoKeys.clear();
+            mAllPianoKeysSorted.clear();
 
             for (int keyGroup = 0; keyGroup < BLACK_PIANO_KEY_GROUPS; keyGroup++) {
                 PianoKey[] blackKeys;
@@ -64,6 +67,8 @@ public class Piano {
 
                 for (int keyIndexInGroup = 0; keyIndexInGroup < blackKeys.length; keyIndexInGroup++) {
                     blackKeys[keyIndexInGroup] = new PianoKey();
+                    mAllPianoKeysSorted.add(blackKeys[keyIndexInGroup]);
+
                     Rect[] areaOfKey = new Rect[1];
                     blackKeys[keyIndexInGroup].setType(PianoKeyType.BLACK);
                     blackKeys[keyIndexInGroup].setGroup(keyGroup);
@@ -144,6 +149,8 @@ public class Piano {
 
                 for (int keyIndexInGroup = 0; keyIndexInGroup < whiteKeys.length; keyIndexInGroup++) {
                     whiteKeys[keyIndexInGroup] = new PianoKey();
+                    mAllPianoKeysSorted.add(whiteKeys[keyIndexInGroup]);
+
                     //固定属性
                     whiteKeys[keyIndexInGroup].setType(PianoKeyType.WHITE);
                     whiteKeys[keyIndexInGroup].setGroup(keyGroup);
@@ -239,6 +246,9 @@ public class Piano {
 
                 mWhitePianoKeys.add(whiteKeys);
             }
+
+            // Sort all piano keys
+            PianoKey.sortListAscendingByMidiId(mAllPianoKeysSorted);
         }
     }
 
@@ -405,5 +415,27 @@ public class Piano {
         this.mLayoutHeight = argLayoutHeight;
 
         InitPiano();
+    }
+
+    //==================================================================================//
+    //==================================================================================//
+    public void setHighlightedKeys(ArrayList<HighlightedKeyInfo> argHighlightedKeyInfoList) {
+        // Reset previous highlights (if any)
+        if(null == argHighlightedKeyInfoList) {
+            for(PianoKey pianoKey : mAllPianoKeysSorted) {
+                pianoKey.setHighlightedNoteName("");
+            }
+        }
+        // Set new highlights
+        else {
+            for (HighlightedKeyInfo highlightedKeyInfo : argHighlightedKeyInfoList) {
+                int pianoKeyZIndex = highlightedKeyInfo.mMidiNoteNum - 21; // 21 is the MIDI note number for piano key A0 (the first note in the list)
+
+                if ((pianoKeyZIndex >= 0) && (pianoKeyZIndex < mAllPianoKeysSorted.size())) {
+                    PianoKey pianoKey = mAllPianoKeysSorted.get(pianoKeyZIndex);
+                    pianoKey.setHighlightedNoteName(highlightedKeyInfo.mTmpDisplayName);
+                }
+            }
+        }
     }
 }
