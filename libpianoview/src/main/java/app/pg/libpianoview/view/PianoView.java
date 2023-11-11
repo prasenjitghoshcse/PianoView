@@ -31,7 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PianoView extends View {
     private final static String TAG = "PianoView";
     private final static int kWhiteKeyWidthDpMin = 50;
-    private final static int kWhiteKeyWidthDpMax = 120;
+    private final static int kWhiteKeyWidthDpMax = 220;
     private final static int kWhiteKeyWidthDpDefault = 80;
 
     private Piano mPiano = null;

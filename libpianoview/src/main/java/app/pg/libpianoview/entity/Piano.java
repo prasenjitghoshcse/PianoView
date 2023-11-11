@@ -29,6 +29,7 @@ public class Piano {
     private int                         mWhiteKeyWidth; // White key height is same as layout height
     private int                         mNumOfWhiteKeys = 0;
     private final Context               mContext;
+    private final ArrayList<HighlightedKeyInfo> mHighlightedKeyInfoList = new ArrayList<>();
 
     //==================================================================================//
     //==================================================================================//
@@ -249,6 +250,10 @@ public class Piano {
 
             // Sort all piano keys
             PianoKey.sortListAscendingByMidiId(mAllPianoKeysSorted);
+
+            // Refreshing highlighted key info as new Key objects have been created
+            // MUST be called after mAllPianoKeysSorted is sorted
+            refreshHighlightedKeys();
         }
     }
 
@@ -420,15 +425,27 @@ public class Piano {
     //==================================================================================//
     //==================================================================================//
     public void setHighlightedKeys(ArrayList<HighlightedKeyInfo> argHighlightedKeyInfoList) {
+        mHighlightedKeyInfoList.clear();
+
+        if(null != argHighlightedKeyInfoList) {
+            mHighlightedKeyInfoList.addAll(argHighlightedKeyInfoList);
+        }
+
+        refreshHighlightedKeys();
+    }
+
+    //==================================================================================//
+    //==================================================================================//
+    private void refreshHighlightedKeys() {
         // Reset previous highlights (if any)
-        if(null == argHighlightedKeyInfoList) {
+        if(0 == mHighlightedKeyInfoList.size()) {
             for(PianoKey pianoKey : mAllPianoKeysSorted) {
                 pianoKey.setHighlightedNoteName("");
             }
         }
         // Set new highlights
         else {
-            for (HighlightedKeyInfo highlightedKeyInfo : argHighlightedKeyInfoList) {
+            for (HighlightedKeyInfo highlightedKeyInfo : mHighlightedKeyInfoList) {
                 int pianoKeyZIndex = highlightedKeyInfo.mMidiNoteNum - 21; // 21 is the MIDI note number for piano key A0 (the first note in the list)
 
                 if ((pianoKeyZIndex >= 0) && (pianoKeyZIndex < mAllPianoKeysSorted.size())) {
