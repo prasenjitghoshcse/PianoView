@@ -421,6 +421,11 @@ public class PianoView extends View {
     //==================================================================================//
     //==================================================================================//
     private void HandleWhiteKeyDown(int which, MotionEvent event, PianoKey key) {
+        if (mPianoListener != null) {
+            mPianoListener.onPianoKeyPress(key.getType(), key.getVoice(), key.getGroup(),
+                    key.getPositionOfGroup(), key.getMidiNoteNumber());
+        }
+
         key.getKeyDrawable().setState(new int[] { android.R.attr.state_pressed });
         key.setPressed(true);
 
@@ -430,16 +435,16 @@ public class PianoView extends View {
 
         mPressedKeys.add(key);
         invalidate(key.getKeyDrawable().getBounds());
-
-        if (mPianoListener != null) {
-            mPianoListener.onPianoKeyPress(key.getType(), key.getVoice(), key.getGroup(),
-                    key.getPositionOfGroup(), key.getMidiNoteNumber());
-        }
     }
 
     //==================================================================================//
     //==================================================================================//
     private void HandleBlackKeyDown(int which, MotionEvent event, PianoKey key) {
+        if (mPianoListener != null) {
+            mPianoListener.onPianoKeyPress(key.getType(), key.getVoice(), key.getGroup(),
+                    key.getPositionOfGroup(), key.getMidiNoteNumber());
+        }
+
         key.getKeyDrawable().setState(new int[] { android.R.attr.state_pressed });
         key.setPressed(true);
 
@@ -449,11 +454,6 @@ public class PianoView extends View {
 
         mPressedKeys.add(key);
         invalidate(key.getKeyDrawable().getBounds());
-
-        if (mPianoListener != null) {
-            mPianoListener.onPianoKeyPress(key.getType(), key.getVoice(), key.getGroup(),
-                    key.getPositionOfGroup(), key.getMidiNoteNumber());
-        }
     }
 
     //==================================================================================//
@@ -465,16 +465,16 @@ public class PianoView extends View {
         for (PianoKey key : mPressedKeys) {
             if (key.getFingerID() == event.getPointerId(which)) {
                 if (!key.contains(x, y)) {
+                    if (mPianoListener != null) {
+                        mPianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
+                                key.getPositionOfGroup(), key.getMidiNoteNumber());
+                    }
+
                     key.getKeyDrawable().setState(new int[] { -android.R.attr.state_pressed });
                     invalidate(key.getKeyDrawable().getBounds());
                     key.setPressed(false);
                     key.resetFingerID();
                     mPressedKeys.remove(key);
-
-                    if (mPianoListener != null) {
-                        mPianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
-                                key.getPositionOfGroup(), key.getMidiNoteNumber());
-                    }
 
                     // No more keys are needed to be checked
                     break;
@@ -488,16 +488,16 @@ public class PianoView extends View {
     private void HandlePointerUp(int pointerId) {
         for (PianoKey key : mPressedKeys) {
             if (key.getFingerID() == pointerId) {
+                if (mPianoListener != null) {
+                    mPianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
+                            key.getPositionOfGroup(), key.getMidiNoteNumber());
+                }
+
                 key.setPressed(false);
                 key.resetFingerID();
                 key.getKeyDrawable().setState(new int[] { -android.R.attr.state_pressed });
                 invalidate(key.getKeyDrawable().getBounds());
                 mPressedKeys.remove(key);
-
-                if (mPianoListener != null) {
-                    mPianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
-                            key.getPositionOfGroup(), key.getMidiNoteNumber());
-                }
 
                 // No more keys are needed to be checked
                 break;
@@ -510,14 +510,14 @@ public class PianoView extends View {
     private void HandleUp() {
         if (mPressedKeys.size() > 0) {
             for (PianoKey key : mPressedKeys) {
-                key.getKeyDrawable().setState(new int[] { -android.R.attr.state_pressed });
-                key.setPressed(false);
-                invalidate(key.getKeyDrawable().getBounds());
-
                 if (mPianoListener != null) {
                     mPianoListener.onPianoKeyRelease(key.getType(), key.getVoice(), key.getGroup(),
                             key.getPositionOfGroup(), key.getMidiNoteNumber());
                 }
+
+                key.getKeyDrawable().setState(new int[] { -android.R.attr.state_pressed });
+                key.setPressed(false);
+                invalidate(key.getKeyDrawable().getBounds());
             }
 
             mPressedKeys.clear();
