@@ -33,7 +33,6 @@ public class PianoView extends View {
     // Constants
     private final static String TAG = "PianoView";
     private final static int kWhiteKeyWidthDpMin = 50;
-    private final static int kWhiteKeyWidthDpMax = 220;
     private final static int kWhiteKeyWidthDpDefault = 80;
     private final static float kBlack2WhiteKeyHeightRatio = 0.6f;
     private final static int kHighlight1ColourIndex = 0;
@@ -732,19 +731,31 @@ public class PianoView extends View {
 
     //==================================================================================//
     //==================================================================================//
-    public void SetWhiteKeyWidth(int argWhiteKeyWidthPx) {
+    public void SetWhiteKeyWidth(int argWidthToSetPx) {
         if (mPiano != null) {
             int minWidthPx = dpToPx(kWhiteKeyWidthDpMin);
-            int maxWidthPx = dpToPx(kWhiteKeyWidthDpMax);
-            int currentWidth = mPiano.getWhiteKeyWidth();
+            int maxWidthPx = mLayoutWidth / 8;
+            int currentWidthPx = mPiano.getWhiteKeyWidth();
 
-            // Set width if provided value is valid
-            if((argWhiteKeyWidthPx != currentWidth) && (argWhiteKeyWidthPx <= maxWidthPx) && (argWhiteKeyWidthPx >= minWidthPx)) {
-                mPiano.setWhiteKeyWidth(argWhiteKeyWidthPx);
+            // Entertain a changed value only
+            if(argWidthToSetPx != currentWidthPx) {
+                int widthToSet;
 
-                mIsInitFinish = false;
+                // Handle increase in size
+                if(argWidthToSetPx > currentWidthPx) {
+                    widthToSet = Math.min(argWidthToSetPx, maxWidthPx);
+                }
+                // Handle decrease in size
+                else {
+                    widthToSet = Math.max(argWidthToSetPx, minWidthPx);
+                }
 
-                invalidate();
+                // Apply width change (if any)
+                if(widthToSet != currentWidthPx) {
+                    mPiano.setWhiteKeyWidth(widthToSet);
+                    mIsInitFinish = false;
+                    invalidate();
+                }
             }
         }
     }
