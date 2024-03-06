@@ -23,7 +23,9 @@ public class PianoKey {
   private String             letterName;
   private int                fingerID = -1;
   private int                mMidiNoteNum = -1;
-  private String             mTmpHighlightedNoteName = "";
+  private String             mTmpHighlightedNoteName1 = "";
+  private String             mTmpHighlightedNoteName2 = "";
+  private String             mTmpHighlightedNoteName3 = "";
 
   public Piano.PianoKeyType getType() {
     return type;
@@ -140,11 +142,27 @@ public class PianoKey {
     });
   }
 
-  public String getHighlightedNoteName() {
-    return mTmpHighlightedNoteName;
+  public String getHighlightedNoteName1() {
+    return mTmpHighlightedNoteName1;
   }
 
-  public void setHighlightedNoteName(String argHighlightedNoteName) {
-    mTmpHighlightedNoteName = argHighlightedNoteName;
+  public void setHighlightedNoteName1(String argHighlightedNoteName) {
+    mTmpHighlightedNoteName1 = argHighlightedNoteName;
+  }
+
+  public String getHighlightedNoteName2() {
+    return mTmpHighlightedNoteName2;
+  }
+
+  public void setHighlightedNoteName2(String argHighlightedNoteName) {
+    mTmpHighlightedNoteName2 = argHighlightedNoteName;
+  }
+
+  public String getHighlightedNoteName3() {
+    return mTmpHighlightedNoteName3;
+  }
+
+  public void setHighlightedNoteName3(String argHighlightedNoteName) {
+    mTmpHighlightedNoteName3 = argHighlightedNoteName;
   }
 }

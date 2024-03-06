@@ -26,17 +26,26 @@ public class Piano {
     private int                         mLayoutHeight = 0;
     private int                         mBlackKeyWidth;
     private int                         mBlackKeyHeight;
+    private float                       mBlack2WhiteKeyHeightRatio;
     private int                         mWhiteKeyWidth; // White key height is same as layout height
     private int                         mNumOfWhiteKeys = 0;
     private final Context               mContext;
-    private final ArrayList<HighlightedKeyInfo> mHighlightedKeyInfoList = new ArrayList<>();
+    private final ArrayList<HighlightedKeyInfo> mHighlightedKeyInfoList1 = new ArrayList<>();
+    private final ArrayList<HighlightedKeyInfo> mHighlightedKeyInfoList2 = new ArrayList<>();
+    private final ArrayList<HighlightedKeyInfo> mHighlightedKeyInfoList3 = new ArrayList<>();
 
     //==================================================================================//
     //==================================================================================//
-    public Piano(Context argContext, int argLayoutWidth, int argLayoutHeight, int argWhiteKeyWidth) {
-        this.mContext      = argContext;
-        this.mLayoutWidth  = argLayoutWidth;
-        this.mLayoutHeight = argLayoutHeight;
+    public Piano(
+            Context argContext,
+            int argLayoutWidth,
+            int argLayoutHeight,
+            int argWhiteKeyWidth,
+            float argBlack2WhiteKeyHeightRatio) {
+        this.mContext                   = argContext;
+        this.mLayoutWidth               = argLayoutWidth;
+        this.mLayoutHeight              = argLayoutHeight;
+        this.mBlack2WhiteKeyHeightRatio = argBlack2WhiteKeyHeightRatio;
 
         setWhiteKeyWidth(argWhiteKeyWidth);
 
@@ -47,7 +56,7 @@ public class Piano {
     //==================================================================================//
     private void InitPiano() {
         if ((mLayoutWidth > 0) && (mLayoutHeight > 0)) {
-            mBlackKeyHeight = (int) ((float) mLayoutHeight * 0.6f);
+            mBlackKeyHeight = (int) ((float) mLayoutHeight * mBlack2WhiteKeyHeightRatio);
 
             // Setup black piano keys
             mBlackPianoKeys.clear();
@@ -424,11 +433,24 @@ public class Piano {
 
     //==================================================================================//
     //==================================================================================//
-    public void setHighlightedKeys(ArrayList<HighlightedKeyInfo> argHighlightedKeyInfoList) {
-        mHighlightedKeyInfoList.clear();
+    public void setHighlightedKeys(
+            ArrayList<HighlightedKeyInfo> argHighlightedKeyInfoList1,
+            ArrayList<HighlightedKeyInfo> argHighlightedKeyInfoList2,
+            ArrayList<HighlightedKeyInfo> argHighlightedKeyInfoList3) {
+        mHighlightedKeyInfoList1.clear();
+        mHighlightedKeyInfoList2.clear();
+        mHighlightedKeyInfoList3.clear();
 
-        if(null != argHighlightedKeyInfoList) {
-            mHighlightedKeyInfoList.addAll(argHighlightedKeyInfoList);
+        if(null != argHighlightedKeyInfoList1) {
+            mHighlightedKeyInfoList1.addAll(argHighlightedKeyInfoList1);
+        }
+
+        if(null != argHighlightedKeyInfoList2) {
+            mHighlightedKeyInfoList2.addAll(argHighlightedKeyInfoList2);
+        }
+
+        if(null != argHighlightedKeyInfoList3) {
+            mHighlightedKeyInfoList3.addAll(argHighlightedKeyInfoList3);
         }
 
         refreshHighlightedKeys();
@@ -438,19 +460,60 @@ public class Piano {
     //==================================================================================//
     private void refreshHighlightedKeys() {
         // Reset previous highlights (if any)
-        if(0 == mHighlightedKeyInfoList.size()) {
-            for(PianoKey pianoKey : mAllPianoKeysSorted) {
-                pianoKey.setHighlightedNoteName("");
+        // Highlight 1
+        {
+            if (0 == mHighlightedKeyInfoList1.size()) {
+                for (PianoKey pianoKey : mAllPianoKeysSorted) {
+                    pianoKey.setHighlightedNoteName1("");
+                }
+            }
+            // Set new highlights
+            else {
+                for (HighlightedKeyInfo highlightedKeyInfo : mHighlightedKeyInfoList1) {
+                    int pianoKeyZIndex = highlightedKeyInfo.mMidiNoteNum - 21; // 21 is the MIDI note number for piano key A0 (the first note in the list)
+
+                    if ((pianoKeyZIndex >= 0) && (pianoKeyZIndex < mAllPianoKeysSorted.size())) {
+                        PianoKey pianoKey = mAllPianoKeysSorted.get(pianoKeyZIndex);
+                        pianoKey.setHighlightedNoteName1(highlightedKeyInfo.mTmpDisplayName);
+                    }
+                }
             }
         }
-        // Set new highlights
-        else {
-            for (HighlightedKeyInfo highlightedKeyInfo : mHighlightedKeyInfoList) {
-                int pianoKeyZIndex = highlightedKeyInfo.mMidiNoteNum - 21; // 21 is the MIDI note number for piano key A0 (the first note in the list)
+        // Highlight 2
+        {
+            if (0 == mHighlightedKeyInfoList2.size()) {
+                for (PianoKey pianoKey : mAllPianoKeysSorted) {
+                    pianoKey.setHighlightedNoteName2("");
+                }
+            }
+            // Set new highlights
+            else {
+                for (HighlightedKeyInfo highlightedKeyInfo : mHighlightedKeyInfoList2) {
+                    int pianoKeyZIndex = highlightedKeyInfo.mMidiNoteNum - 21; // 21 is the MIDI note number for piano key A0 (the first note in the list)
 
-                if ((pianoKeyZIndex >= 0) && (pianoKeyZIndex < mAllPianoKeysSorted.size())) {
-                    PianoKey pianoKey = mAllPianoKeysSorted.get(pianoKeyZIndex);
-                    pianoKey.setHighlightedNoteName(highlightedKeyInfo.mTmpDisplayName);
+                    if ((pianoKeyZIndex >= 0) && (pianoKeyZIndex < mAllPianoKeysSorted.size())) {
+                        PianoKey pianoKey = mAllPianoKeysSorted.get(pianoKeyZIndex);
+                        pianoKey.setHighlightedNoteName2(highlightedKeyInfo.mTmpDisplayName);
+                    }
+                }
+            }
+        }
+        // Highlight 3
+        {
+            if (0 == mHighlightedKeyInfoList3.size()) {
+                for (PianoKey pianoKey : mAllPianoKeysSorted) {
+                    pianoKey.setHighlightedNoteName3("");
+                }
+            }
+            // Set new highlights
+            else {
+                for (HighlightedKeyInfo highlightedKeyInfo : mHighlightedKeyInfoList3) {
+                    int pianoKeyZIndex = highlightedKeyInfo.mMidiNoteNum - 21; // 21 is the MIDI note number for piano key A0 (the first note in the list)
+
+                    if ((pianoKeyZIndex >= 0) && (pianoKeyZIndex < mAllPianoKeysSorted.size())) {
+                        PianoKey pianoKey = mAllPianoKeysSorted.get(pianoKeyZIndex);
+                        pianoKey.setHighlightedNoteName3(highlightedKeyInfo.mTmpDisplayName);
+                    }
                 }
             }
         }
