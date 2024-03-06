@@ -62,7 +62,9 @@ public class PianoView extends View {
     private boolean         mKeyPressEnabled = true;
     private boolean         mShowNoteNamesEnabled = true;
     private boolean         mOctaveColoringEnabled = true;
-    private boolean         mSelectedKeys1HighlightEnabled = true;
+    private boolean         mSelectedKeysHighlight1Enabled = true;
+//    private boolean         mSelectedKeysHighlight2Enabled = true; // TODO:
+    private boolean         mSelectedKeysHighlight3Enabled = true;
     private boolean         mIsInitFinish = false;
 
     //==================================================================================//
@@ -213,7 +215,7 @@ public class PianoView extends View {
                     }
 
                     // Draw the selected keys1 highlight
-                    if(mSelectedKeys1HighlightEnabled && (!"".equals(key.getHighlightedNoteName1())))
+                    if(mSelectedKeysHighlight1Enabled && (!"".equals(key.getHighlightedNoteName1())))
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(highlightedNameRectLeft, highlightedNameRectTop, highlightedNameRectRight, highlightedNameRectBottom);
@@ -230,7 +232,7 @@ public class PianoView extends View {
                     int driftPx = dpToPx(4);
 
                     // Draw the selected keys2 highlight
-                    if(mSelectedKeys1HighlightEnabled && (!"".equals(key.getHighlightedNoteName2())))
+                    if(mSelectedKeysHighlight1Enabled && (!"".equals(key.getHighlightedNoteName2())))
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(
@@ -251,7 +253,7 @@ public class PianoView extends View {
                     }
 
                     // Draw the selected keys3 highlight
-                    if(mSelectedKeys1HighlightEnabled && (!"".equals(key.getHighlightedNoteName3())))
+                    if(mSelectedKeysHighlight3Enabled && (!"".equals(key.getHighlightedNoteName3())))
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(
@@ -349,7 +351,7 @@ public class PianoView extends View {
                     }
 
                     // Draw the selected keys1 highlight
-                    if(mSelectedKeys1HighlightEnabled && (!"".equals(key.getHighlightedNoteName1())))
+                    if(mSelectedKeysHighlight1Enabled && (!"".equals(key.getHighlightedNoteName1())))
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(
@@ -370,7 +372,7 @@ public class PianoView extends View {
                     int driftPx = dpToPx(4);
 
                     // Draw the selected keys2 highlight
-                    if(mSelectedKeys1HighlightEnabled && (!"".equals(key.getHighlightedNoteName2())))
+                    if(mSelectedKeysHighlight1Enabled && (!"".equals(key.getHighlightedNoteName2())))
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(
@@ -391,7 +393,7 @@ public class PianoView extends View {
                     }
 
                     // Draw the selected keys3 highlight
-                    if(mSelectedKeys1HighlightEnabled && (!"".equals(key.getHighlightedNoteName3())))
+                    if(mSelectedKeysHighlight3Enabled && (!"".equals(key.getHighlightedNoteName3())))
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(
@@ -431,8 +433,11 @@ public class PianoView extends View {
             int argTextSizePx) {
 
         // the background rectangle
-        argPaint.setColor(argRectColour);
-        argCanvas.drawRoundRect(argRect, 12f, 12f, argPaint);
+        {
+            int cornerRadius = (int)(argRect.height()/4);
+            argPaint.setColor(argRectColour);
+            argCanvas.drawRoundRect(argRect, cornerRadius, cornerRadius, argPaint);
+        }
 
         // Draw the key name
         {
@@ -680,9 +685,18 @@ public class PianoView extends View {
 
     //==================================================================================//
     //==================================================================================//
-    public void SetSelectedKeys1HighlightEnabled(boolean argIsEnabled) {
-        if(argIsEnabled != this.mSelectedKeys1HighlightEnabled) {
-            this.mSelectedKeys1HighlightEnabled = argIsEnabled;
+    public void SetSelectedKeysHighlight1Enabled(boolean argIsEnabled) {
+        if(argIsEnabled != this.mSelectedKeysHighlight1Enabled) {
+            this.mSelectedKeysHighlight1Enabled = argIsEnabled;
+            invalidate();
+        }
+    }
+
+    //==================================================================================//
+    //==================================================================================//
+    public void SetSelectedKeysHighlight3Enabled(boolean argIsEnabled) {
+        if(argIsEnabled != this.mSelectedKeysHighlight3Enabled) {
+            this.mSelectedKeysHighlight3Enabled = argIsEnabled;
             invalidate();
         }
     }
