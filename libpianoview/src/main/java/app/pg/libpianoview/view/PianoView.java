@@ -38,6 +38,8 @@ public class PianoView extends View {
     private final static int kHighlight1ColourIndex = 0;
     private final static int kHighlight2ColourIndex = 6;
     private final static int kHighlight3ColourIndex = 1;
+    private final static int mParamTextSizeKeyNameDp = 20;
+    private final static int mParamTextSizeHighlightKeyNameDp = 22;
 
     // Variables
     private Piano mPiano = null;
@@ -63,7 +65,7 @@ public class PianoView extends View {
     private boolean         mShowNoteNamesEnabled = true;
     private boolean         mOctaveColoringEnabled = true;
     private boolean         mSelectedKeysHighlight1Enabled = true;
-//    private boolean         mSelectedKeysHighlight2Enabled = true; // TODO:
+    private boolean         mSelectedKeysHighlight2Enabled = false; // TODO:
     private boolean         mSelectedKeysHighlight3Enabled = true;
     private boolean         mIsInitFinish = false;
 
@@ -163,7 +165,7 @@ public class PianoView extends View {
                     int octaveColourRectBottom   = keyRect.bottom - marginBottom;
                     int octaveColourRectTop      = keyRect.bottom - marginBottom - octaveColourRectHeight;
                     // Key name text related
-                    int keyNameTxtSize           = (int)(unusedWidth * 0.50f);
+                    int keyNameTxtSize           = dpToPx(mParamTextSizeKeyNameDp);
                     int keyNameRectPaddingTop    = keyNameTxtSize/5;
                     int keyNameRectPaddingBottom = keyNameTxtSize/4;
                     int keyNameRectLeft          = keyRect.left + marginLeft;
@@ -172,7 +174,7 @@ public class PianoView extends View {
                     int keyNameRectTop           = keyNameRectBottom - keyNameRectPaddingBottom - keyNameTxtSize - keyNameRectPaddingTop;
                     int keyNameRectHeight        = keyNameRectBottom - keyNameRectTop;
                     // Highlighted key name related
-                    int highlightedNameTxtSize           = (int)(unusedWidth * 0.60f);
+                    int highlightedNameTxtSize           = dpToPx(mParamTextSizeHighlightKeyNameDp);
                     int highlightedNameRectPaddingTop    = highlightedNameTxtSize/5;
                     int highlightedNameRectPaddingBottom = highlightedNameTxtSize/4;
                     int highlightedNameRectLeft          = keyRect.left + marginLeft;
@@ -196,12 +198,6 @@ public class PianoView extends View {
                         // The key name bound rectangle
                         mRectF.set(keyNameRectLeft, keyNameRectTop, keyNameRectRight, keyNameRectBottom);
 
-                        // For debugging - Draw the background rectangle behind the key names
-//                    if(mOctaveColoringEnabled) {
-//                        mPaint.setColor(Color.parseColor(mPianoOctaveColors[i]));
-//                        canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
-//                    }
-
                         // Draw the key names (e.g. C0, A4 etc.)
                         if(mShowNoteNamesEnabled) {
                             mPaint.setColor(Color.GRAY);
@@ -220,19 +216,27 @@ public class PianoView extends View {
                         // The highlighted key name bound rectangle
                         mRectF.set(highlightedNameRectLeft, highlightedNameRectTop, highlightedNameRectRight, highlightedNameRectBottom);
 
+                        String highlightedKeyNoteName = key.getHighlightedNoteName1();
+
+                        // No need to draw text for Highlight1 if either Highlight2 or Highlight3 is active
+                        if((mSelectedKeysHighlight2Enabled && (!"".equals(key.getHighlightedNoteName2())))
+                                || (mSelectedKeysHighlight3Enabled && (!"".equals(key.getHighlightedNoteName3())))) {
+                            highlightedKeyNoteName = "";
+                        }
+
                         DrawKeyHighlightedRect(
                                 canvas,
                                 mPaint,
                                 Color.parseColor(mPianoOctaveColors[kHighlight1ColourIndex]),
                                 mRectF,
-                                key.getHighlightedNoteName1(),
+                                highlightedKeyNoteName,
                                 highlightedNameTxtSize);
                     }
 
                     int driftPx = dpToPx(4);
 
                     // Draw the selected keys2 highlight
-                    if(mSelectedKeysHighlight1Enabled && (!"".equals(key.getHighlightedNoteName2())))
+                    if(mSelectedKeysHighlight2Enabled && (!"".equals(key.getHighlightedNoteName2())))
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(
@@ -243,12 +247,19 @@ public class PianoView extends View {
 
                         driftPx += driftPx;
 
+                        String highlightedKeyNoteName = key.getHighlightedNoteName2();
+
+                        // No need to draw text for Highlight2 if Highlight3 is active
+                        if(mSelectedKeysHighlight3Enabled && (!"".equals(key.getHighlightedNoteName3()))) {
+                            highlightedKeyNoteName = "";
+                        }
+
                         DrawKeyHighlightedRect(
                                 canvas,
                                 mPaint,
                                 Color.parseColor(mPianoOctaveColors[kHighlight2ColourIndex]),
                                 mRectF,
-                                key.getHighlightedNoteName2(),
+                                highlightedKeyNoteName,
                                 highlightedNameTxtSize);
                     }
 
@@ -262,6 +273,7 @@ public class PianoView extends View {
                                 highlightedNameRectRight + driftPx,
                                 highlightedNameRectBottom - (2 * driftPx));
 
+                        // Highlight3 is always drawn
                         DrawKeyHighlightedRect(
                                 canvas,
                                 mPaint,
@@ -291,7 +303,7 @@ public class PianoView extends View {
                     int marginRight    = unusedWidth/2;
                     int marginBottom   = (int)(keyHeight * 0.14f); // Bottom Margin is a function of key height, not- of key width
                     // Key name text relayed
-                    int keyNameTxtSize            = (int)(unusedWidth * 0.55f);
+                    int keyNameTxtSize            = dpToPx(mParamTextSizeKeyNameDp);
                     int keyNameRectPaddingTop     = unusedWidth/5;
                     int keyNameRectPaddingBottom  = unusedWidth/5;
                     int keyNameRectLeft           = keyRect.left + marginLeft;
@@ -300,25 +312,18 @@ public class PianoView extends View {
                     int keyNameRectTop            = keyRect.bottom - marginBottom - keyNameRectPaddingBottom - (2 * keyNameTxtSize) - keyNameRectPaddingTop;
                     int keyNameRectHeight         = keyNameRectBottom - keyNameRectTop;
                     // Highlighted key name 1 related
-                    int highlightedName1TxtSize           = (int)(unusedWidth * 0.65f);
-                    int highlightedName1RectPaddingTop    = highlightedName1TxtSize/5;
-                    int highlightedName1RectPaddingBottom = highlightedName1TxtSize/4;
-                    int highlightedName1RectLeft          = keyRect.left + marginLeft;
-                    int highlightedName1RectRight         = keyRect.right - marginRight;
-                    int highlightedName1RectBottom        = keyRect.bottom - marginBottom - keyNameRectHeight;
-                    int highlightedName1RectTop           = highlightedName1RectBottom - highlightedName1RectPaddingBottom - highlightedName1TxtSize - highlightedName1RectPaddingTop;
+                    int highlightedNameTxtSize           = dpToPx(mParamTextSizeHighlightKeyNameDp);
+                    int highlightedNameRectPaddingTop    = highlightedNameTxtSize/5;
+                    int highlightedNameRectPaddingBottom = highlightedNameTxtSize/4;
+                    int highlightedNameRectLeft          = keyRect.left + marginLeft;
+                    int highlightedNameRectRight         = keyRect.right - marginRight;
+                    int highlightedNameRectBottom        = keyRect.bottom - marginBottom - keyNameRectHeight;
+                    int highlightedNameRectTop           = highlightedNameRectBottom - highlightedNameRectPaddingBottom - highlightedNameTxtSize - highlightedNameRectPaddingTop;
 
                     // Draw the key name
                     {
                         // The key name bound rectangle
                         mRectF.set(keyNameRectLeft, keyNameRectTop, keyNameRectRight, keyNameRectBottom);
-
-                        // For debugging - the embedding rectangle
-//                    if(mOctaveColoringEnabled) {
-//                        // Draw the background rectangle behind the key names
-//                        mPaint.setColor(Color.parseColor(mPianoColors[i]));
-//                        canvas.drawRoundRect(mRectF, 12f, 12f, mPaint);
-//                    }
 
                         // Draw the key names (e.g. C♯, A♭ etc.)
                         if(mShowNoteNamesEnabled) {
@@ -355,41 +360,56 @@ public class PianoView extends View {
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(
-                                highlightedName1RectLeft,
-                                highlightedName1RectTop,
-                                highlightedName1RectRight,
-                                highlightedName1RectBottom);
+                                highlightedNameRectLeft,
+                                highlightedNameRectTop,
+                                highlightedNameRectRight,
+                                highlightedNameRectBottom);
+
+                        String highlightedKeyNoteName = key.getHighlightedNoteName1();
+
+                        // No need to draw text for Highlight1 if either Highlight2 or Highlight3 is active
+                        if((mSelectedKeysHighlight2Enabled && (!"".equals(key.getHighlightedNoteName2())))
+                                || (mSelectedKeysHighlight3Enabled && (!"".equals(key.getHighlightedNoteName3())))) {
+                            highlightedKeyNoteName = "";
+                        }
 
                         DrawKeyHighlightedRect(
                                 canvas,
                                 mPaint,
                                 Color.parseColor(mPianoOctaveColors[kHighlight1ColourIndex]),
                                 mRectF,
-                                key.getHighlightedNoteName1(),
-                                highlightedName1TxtSize);
+                                highlightedKeyNoteName,
+                                highlightedNameTxtSize);
                     }
 
                     int driftPx = dpToPx(4);
 
                     // Draw the selected keys2 highlight
-                    if(mSelectedKeysHighlight1Enabled && (!"".equals(key.getHighlightedNoteName2())))
+                    if(mSelectedKeysHighlight2Enabled && (!"".equals(key.getHighlightedNoteName2())))
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(
-                                highlightedName1RectLeft + driftPx,
-                                highlightedName1RectTop - (2 * driftPx),
-                                highlightedName1RectRight + driftPx,
-                                highlightedName1RectBottom - (2 * driftPx));
+                                highlightedNameRectLeft + driftPx,
+                                highlightedNameRectTop - (2 * driftPx),
+                                highlightedNameRectRight + driftPx,
+                                highlightedNameRectBottom - (2 * driftPx));
 
                         driftPx += driftPx;
+
+                        String highlightedKeyNoteName = key.getHighlightedNoteName2();
+
+                        // No need to draw text for Highlight2 if Highlight3 is active
+                        if(mSelectedKeysHighlight3Enabled && (!"".equals(key.getHighlightedNoteName3()))) {
+                            highlightedKeyNoteName = "";
+                        }
 
                         DrawKeyHighlightedRect(
                                 canvas,
                                 mPaint,
                                 Color.parseColor(mPianoOctaveColors[kHighlight2ColourIndex]),
                                 mRectF,
-                                key.getHighlightedNoteName2(),
-                                highlightedName1TxtSize);
+                                highlightedKeyNoteName,
+                                highlightedNameTxtSize);
                     }
 
                     // Draw the selected keys3 highlight
@@ -397,18 +417,19 @@ public class PianoView extends View {
                     {
                         // The highlighted key name bound rectangle
                         mRectF.set(
-                                highlightedName1RectLeft + driftPx,
-                                highlightedName1RectTop - (2 * driftPx),
-                                highlightedName1RectRight + driftPx,
-                                highlightedName1RectBottom - (2 * driftPx));
+                                highlightedNameRectLeft + driftPx,
+                                highlightedNameRectTop - (2 * driftPx),
+                                highlightedNameRectRight + driftPx,
+                                highlightedNameRectBottom - (2 * driftPx));
 
+                        // Highlight3 is always drawn
                         DrawKeyHighlightedRect(
                                 canvas,
                                 mPaint,
                                 Color.parseColor(mPianoOctaveColors[kHighlight3ColourIndex]),
                                 mRectF,
                                 key.getHighlightedNoteName3(),
-                                highlightedName1TxtSize);
+                                highlightedNameTxtSize);
                     }
                 }
             }
